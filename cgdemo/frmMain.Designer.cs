@@ -1,6 +1,6 @@
 ﻿namespace cgdemo
 {
-    partial class Form1
+    partial class frmMain
     {
         /// <summary>
         /// Required designer variable.
@@ -28,20 +28,37 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.btnDraw = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // Form1
+            // btnDraw
+            // 
+            this.btnDraw.Location = new System.Drawing.Point(983, 12);
+            this.btnDraw.Name = "btnDraw";
+            this.btnDraw.Size = new System.Drawing.Size(166, 68);
+            this.btnDraw.TabIndex = 0;
+            this.btnDraw.Text = "Draw";
+            this.btnDraw.UseVisualStyleBackColor = true;
+            this.btnDraw.Click += new System.EventHandler(this.btnDraw_Click);
+            // 
+            // frmMain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1053, 612);
-            this.Name = "Form1";
-            this.Text = "Form1";
+            this.ClientSize = new System.Drawing.Size(1161, 736);
+            this.Controls.Add(this.btnDraw);
+            this.MinimumSize = new System.Drawing.Size(800, 480);
+            this.Name = "frmMain";
+            this.Text = "CG_LinkunChen";
+            this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.frmMain_MouseUp);
+            this.Resize += new System.EventHandler(this.frmMain_Resize);
             this.ResumeLayout(false);
 
         }
 
         #endregion
+
+        private System.Windows.Forms.Button btnDraw;
     }
 }
 
