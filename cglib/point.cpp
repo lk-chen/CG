@@ -1,6 +1,47 @@
 #include "point.h"
 
 namespace clk {
+	long double Point::area2(const Point& p, const Point& q) const
+	{
+		return p._x*(q._y - this->_y)
+			- q._x*(p._y - this->_y)
+			+ this->_x*(p._y - q._y);
+	}
+	bool Point::between(const Point &p, const Point &q) const
+	{
+		return ((p._x - this->_x)*(q._x - this->_x)
+			+ (p._y - this->_y)*(q._y - this->_y))
+			< 0;
+	}
 	Point::Point(long double x, long double y) :_x(x), _y(y) { }
+	Point::Point(const Point & p) : _x(p._x), _y(p._y) { }
 	Point::~Point() {}
+	bool Point::operator==(const Point &p) const
+	{
+		return (p._x == this->_x)
+			&& (p._y == this->_y);
+	}
+	long double Point::X() const
+	{
+		return _x;
+	}
+	long double Point::Y() const
+	{
+		return _y;
+	}
+	bool Point::toLeft(const Point &p, const Point &q) const
+	{
+		auto area2 = this->area2(p, q);
+		if (area2 > 0) return true;
+		else if (area2 < 0) return false;
+		else return q.between(p, *this);
+	}
+	bool Point::toRight(const Point &p, const Point &q) const
+	{
+		auto area2 = this->area2(p, q);
+		if (area2 > 0) return false;
+		else if (area2 == 0) return q.between(p, *this);
+		else return true;
+	}
+	DistinctPoint::DistinctPoint(const Point & p) :Point(p) { }
 }

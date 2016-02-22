@@ -15,15 +15,48 @@ namespace cgdemo
 {
     public partial class frmMain : Form
     {
-        private List<Point> points;
+        private List<PointF> points;
         private Color pointColor = Color.Red;
         private Color lineColor = Color.Black;
+        private const int margin = 12;
+        private const int btnWidth = 80;
+        private const int btnHeight = 40;
 
         public frmMain()
         {
             InitializeComponent();
-            this.frmMain_Resize(null, null);
-            points = new List<Point>();
+            setLayout();
+            points = new List<PointF>();
+        }
+
+        private void setLayout()
+        {
+            foreach (Control b in this.Controls)
+            {
+                if (b is Button)
+                {
+                    b.Width = btnWidth;
+                    b.Height = btnHeight;
+                }
+            }
+            btnDraw.Left = margin;
+            btnDraw.Top = margin;
+
+            txtX.Left = btnDraw.Right + margin;
+            txtX.Top = margin + (btnDraw.Height - txtX.Height) / 2;
+            txtY.Left = txtX.Right + margin;
+            txtY.Top = margin + (btnDraw.Height - txtY.Height) / 2;
+
+            btnAdd.Left = txtY.Right + margin;
+            btnAdd.Top = margin;
+            btnLoad.Left = btnAdd.Right + margin;
+            btnLoad.Top = margin;
+            btnSave.Left = btnLoad.Right + margin;
+            btnSave.Top = margin;
+
+            lblPoints.Left = btnSave.Right + margin;
+            lblPoints.Top = margin;
+            lblPoints.Text = "";
         }
 
         private void btnDraw_Click(object sender, EventArgs e)
@@ -40,7 +73,7 @@ namespace cgdemo
 
             var h = ch.Length;
             if (h <= 0) return;
-            var hull = new Point[h+1];
+            var hull = new PointF[h+1];
             for (int i = 0; i < h; i++)
                 hull[i] = points[(int)ch[i]];
             hull[h] = hull[0];
@@ -53,13 +86,11 @@ namespace cgdemo
 
         private void frmMain_Resize(object sender, EventArgs e)
         {
-            this.btnDraw.Left = this.Width - this.btnDraw.Width - 30;
-            this.btnDraw.Top = 12;
         }
 
         private void frmMain_MouseUp(object sender, MouseEventArgs e)
         {
-            var p = new Point(e.X, e.Y);
+            var p = new PointF(e.X, e.Y);
             points.Add(p);
 
             var g = this.CreateGraphics();
@@ -68,6 +99,11 @@ namespace cgdemo
             g.FillEllipse(brush, p.X - diameter/2, p.Y - diameter/2, diameter, diameter);
             g.Dispose();
             brush.Dispose();
+        }
+
+        private void btnAdd_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

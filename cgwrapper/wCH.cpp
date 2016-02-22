@@ -18,8 +18,8 @@ namespace wrapper {
 			points.push_back(clk::Point(X[i], Y[i]));
 		auto r = clk::CH::incremental(points);
 
-		auto res = gcnew array<size_t>(sz);
-		for (int i = 0; i < sz; i++)
+		auto res = gcnew array<size_t>(r.size());
+		for (size_t i = 0; i < r.size(); i++)
 			res[i] = r[i];
 
 		return res;
