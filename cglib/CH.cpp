@@ -36,6 +36,7 @@ namespace clk {
 
 		s = t = polygon.size();
 	}
+	
 	std::vector<DistinctPoint> CH::groupPoints(const std::vector<Point>& points)
 	{
 		std::vector<DistinctPoint> indexedPoints, dPoints;
@@ -68,6 +69,7 @@ namespace clk {
 
 		return dPoints;
 	}
+	
 	std::vector<size_t> CH::incremental(const std::vector<Point>& points) {
 		auto dPoints = groupPoints(points);
 		size_t s, t;
@@ -82,17 +84,15 @@ namespace clk {
 					temp.push_back(x);
 				}
 				else if (s < t) {
-					while (s <= t)
-						temp.push_back(polygon[s++]);
+					temp.resize(t - s + 1);
+					std::copy(polygon.begin() + s, polygon.begin() + t + 1, temp.begin());
 					temp.push_back(x);
 				}
 				else {
-					while (s < polygon.size())
-						temp.push_back(polygon[s++]);
-					s = 0;
-					while (s <= t)
-						temp.push_back(polygon[s++]);
-					temp.push_back(x);
+					temp.resize(polygon.size() - (s - t - 1) + 1);
+					std::copy(polygon.begin(), polygon.begin() + t + 1, temp.begin());
+					temp[t + 1] = x;
+					std::copy(polygon.begin() + s, polygon.end(), temp.begin() + t + 2);
 				}
 				polygon = temp;
 			}
