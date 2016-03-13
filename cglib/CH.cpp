@@ -100,7 +100,10 @@ namespace clk {
 			- points.begin();
 	}
 	
-	std::vector<size_t> CH::incremental(const std::vector<Point>& points) {
+	std::vector<size_t> CH::incremental(const std::vector<Point>& points)
+	{
+		if (points.size() == 0) return std::vector<size_t>();
+		
 		auto dPoints = groupPoints(points);
 		size_t s, t;
 		std::vector<size_t> polygon{ 0 };
@@ -133,6 +136,8 @@ namespace clk {
 	
 	std::vector<size_t> CH::giftWrapping(const std::vector<Point>& points)
 	{
+		if (points.size() == 0) return std::vector<size_t>();
+
 		auto dPoints = groupPoints(points);
 		auto ltl = LTL(dPoints);
 		std::vector<size_t> polygon{ ltl };
@@ -158,6 +163,51 @@ namespace clk {
 			}
 		}
 		
+		return deGroupPoints(dPoints, polygon);
+	}
+	
+	std::vector<size_t> CH::grahamScan(const std::vector<Point>& points)
+	{
+		if (points.size() == 0) return std::vector<size_t>();
+
+		auto dPoints = groupPoints(points);
+		auto ltl = LTL(dPoints);
+
+		struct {
+			bool operator()(const DistinctPoint& o,
+				const DistinctPoint& p, const DistinctPoint& q) {
+				if (o == p) return true;
+				if (o == q) return false;
+				return p.toRight(o, q);
+			}
+		} polarComp;
+
+		auto ltlPoint = dPoints[ltl];
+		std::sort(dPoints.begin(), dPoints.end(),
+			std::bind(polarComp, ltlPoint, std::placeholders::_1, std::placeholders::_2));
+
+		std::vector<size_t> polygon{ 0 };
+		if (dPoints.size() == 1) return deGroupPoints(dPoints, polygon);
+
+		polygon.push_back(1);
+		for (size_t i = 2; i < dPoints.size(); i++) {
+			auto last = polygon.back();
+			auto lastpre = *(polygon.end() - 2);
+
+			if (dPoints[i].toRight(dPoints[lastpre], dPoints[last])) {
+				do {
+					polygon.pop_back();
+					if (polygon.size() == 1) break;
+					last = polygon.back();
+					lastpre = *(polygon.end() - 2);
+				} while (dPoints[i].toRight(dPoints[lastpre], dPoints[last]));
+				polygon.push_back(i);
+			}
+			else if (dPoints[i].toLeft(dPoints[lastpre], dPoints[last])) {
+				polygon.push_back(i);
+			}
+		}
+
 		return deGroupPoints(dPoints, polygon);
 	}
 }

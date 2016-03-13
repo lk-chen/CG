@@ -9,10 +9,7 @@ namespace wrapper {
 		static std::vector<clk::Point> getPointsFromCoord(
 			array<long double>^, array<long double>^);
 	public:
-		static array<size_t> ^incremental(
-			array<long double>^, array<long double>^);
-
-		static array<size_t> ^giftWrapping(
+		static array<size_t> ^getCH(
 			array<long double>^, array<long double>^);
 	};
 }

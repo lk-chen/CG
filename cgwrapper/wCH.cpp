@@ -19,23 +19,11 @@ namespace wrapper {
 		return points;
 	}
 	
-	array<size_t> ^CH::incremental(
-		array<long double>^ X, array<long double>^ Y) {
-		auto points = getPointsFromCoord(X, Y);
-		auto r = clk::CH::incremental(points);
-
-		auto res = gcnew array<size_t>(r.size());
-		for (size_t i = 0; i < r.size(); i++)
-			res[i] = r[i];
-
-		return res;
-	}
-
-	array<size_t>^ CH::giftWrapping(
+	array<size_t>^ CH::getCH(
 		array<long double>^ X, array<long double>^ Y)
 	{
 		auto points = getPointsFromCoord(X, Y);
-		auto r = clk::CH::giftWrapping(points);
+		auto r = clk::CH::grahamScan(points);
 
 		auto res = gcnew array<size_t>(r.size());
 		for (size_t i = 0; i < r.size(); i++)

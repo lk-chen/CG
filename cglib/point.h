@@ -68,6 +68,9 @@ namespace clk {
 
 		/// <summary> Mirror image of toLeft </summary>
 		bool toRight(const Point &p, const Point &q) const;
+
+		/// <summary> Convert x y coordinate to string </summary>
+		std::string toString();
 	};
 
 	/// <summary> Non-repeated point </summary>

@@ -34,11 +34,15 @@ namespace clk {
 		static size_t LTL(const std::vector<DistinctPoint> &points);
 	public:
 		/// <summary>
-		/// Incremental method of constructing convex hull </symmary>
+		/// Incremental method of constructing convex hull </summary>
 		static std::vector<size_t> incremental(const std::vector<Point>& points);
 
 		/// <summary>
 		/// Gift Wrapping method of constructing convex hull, aka Javis March </summary>
 		static std::vector<size_t> giftWrapping(const std::vector<Point>& points);
+
+		/// <summary>
+		/// Graham Scan method of constructing convex hull </summary>
+		static std::vector<size_t> grahamScan(const std::vector<Point>& points);
 	};
 }
