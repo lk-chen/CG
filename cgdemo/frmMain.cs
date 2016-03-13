@@ -69,7 +69,7 @@ namespace cgdemo
                 Y[i] = points[i].Y;
             }
 
-            var ch = CH.incremental(X, Y);
+            var ch = CH.giftWrapping(X, Y);
 
             var h = ch.Length;
             if (h <= 0) return;

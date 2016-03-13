@@ -13,13 +13,13 @@ namespace clk {
 		/// <summary>
 		/// Help the toLeft test  </summary>
 		/// <param name="p">
-		/// Successor of current instance in CCW <param>
+		/// Successor of current instance in CCW </param>
 		/// <param name="q">
-		/// Precursor of current instance in CCW <param>
+		/// Precursor of current instance in CCW </param>
 		/// <returns>
 		/// Doubled signed area of triangle defined
 		/// by Point p, Point q and current instance
-		/// in counterclockwise(CCW) <returns>
+		/// in counterclockwise(CCW) </returns>
 		long double area2(const Point &p, const Point &q) const;
 
 		/// <summary>
@@ -70,10 +70,13 @@ namespace clk {
 		bool toRight(const Point &p, const Point &q) const;
 	};
 
+	/// <summary> Non-repeated point </summary>
 	class DLLEXP DistinctPoint : public Point {
 	public:
+		/// <summary> record original indexes of possible repeated points </summary>
 		std::vector<size_t> members;
-	public:
+	
+		/// <summary> copy constructor </summary>
 		DistinctPoint(const Point& p);
 	};
 }

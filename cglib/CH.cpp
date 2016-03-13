@@ -1,5 +1,6 @@
 #include "CH.h"
 #include <algorithm>
+#include <functional>
 
 namespace clk {
 	void CH::getTangent(const size_t x, const std::vector<size_t>& polygon,
@@ -69,6 +70,35 @@ namespace clk {
 
 		return dPoints;
 	}
+
+	std::vector<size_t> CH::deGroupPoints(const std::vector<DistinctPoint>& dPoints, const std::vector<size_t>& polygon) {
+		std::vector<size_t> EP;
+		for (auto distinctVertex : polygon)
+			for (auto vertex : dPoints[distinctVertex].members)
+				EP.push_back(vertex);
+
+		return EP;
+	}
+
+	size_t CH::LTL(const std::vector<DistinctPoint>& points)
+	{
+		struct {
+			bool operator()(const DistinctPoint &p, const DistinctPoint &q) {
+				if (p.Y() < q.Y()) return true;
+				else if (p.Y() > q.Y()) return false;
+				else {
+					if (p.X() < q.X()) return true;
+					else if (p.X() > q.X()) return false;
+					else {
+						throw "Repeated points";
+					}
+				}
+			}
+		} lowestThenLeftmostComp;
+
+		return std::min_element(points.begin(), points.end(), lowestThenLeftmostComp)
+			- points.begin();
+	}
 	
 	std::vector<size_t> CH::incremental(const std::vector<Point>& points) {
 		auto dPoints = groupPoints(points);
@@ -97,12 +127,37 @@ namespace clk {
 				polygon = temp;
 			}
 		}
-
-		std::vector<size_t> EP;
-		for (auto distinctVertex : polygon)
-			for (auto vertex : dPoints[distinctVertex].members)
-				EP.push_back(vertex);
 		
-		return EP;
+		return deGroupPoints(dPoints, polygon);
+	}
+	
+	std::vector<size_t> CH::giftWrapping(const std::vector<Point>& points)
+	{
+		auto dPoints = groupPoints(points);
+		auto ltl = LTL(dPoints);
+		std::vector<size_t> polygon{ ltl };
+
+		struct {
+			bool operator()(const DistinctPoint &o,
+				const DistinctPoint &p, const DistinctPoint &q) {
+				if (o == p) return true;
+				if (o == q) return false;
+				return q.toRight(o, p);
+			}
+		} toRightComp;
+
+		while (true)
+		{
+			auto rightmost = std::max_element(dPoints.begin(), dPoints.end(),
+				std::bind(toRightComp, dPoints[polygon.back()], std::placeholders::_1, std::placeholders::_2))
+				- dPoints.begin();
+						
+			if (rightmost == ltl) break;
+			else {
+				polygon.push_back(rightmost);
+			}
+		}
+		
+		return deGroupPoints(dPoints, polygon);
 	}
 }
