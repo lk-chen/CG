@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -39,7 +40,7 @@ namespace cgdemo
         }
 
         /// <summary>
-        /// Initialize graphics buffer layers, set background color
+        /// Initialize graphics buffer layers, set size and background color
         /// to be the same as system default.
         /// </summary>
         private void initBufferLayers()
@@ -151,10 +152,6 @@ namespace cgdemo
             btnSave.Left = btnLoad.Right + margin;
             btnSave.Top = margin;
 
-            lblPoints.Left = btnSave.Right + margin;
-            lblPoints.Top = margin;
-            lblPoints.Text = "";
-
             setDynamicLayout();
         }
 
@@ -189,6 +186,10 @@ namespace cgdemo
             btnDraw_Click(sender, e);
         }
 
+        /// <summary>
+        /// Add one point into array, and draw it.
+        /// </summary>
+        /// <param name="p"> Point to be added </param>
         private void addPoint(PointF p)
         {
             points.Add(p);
@@ -219,6 +220,78 @@ namespace cgdemo
         private void frmMain_MouseMove(object sender, MouseEventArgs e)
         {
             lblCoord.Text = '(' + e.X.ToString() + ',' + e.Y.ToString() + ')';
+        }
+        
+        private void btnLoad_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Text Files (.txt)|*.txt";
+            var openFileOK = openFileDialog.ShowDialog();
+
+            if (openFileOK == DialogResult.OK)
+            {
+                var fileStream = openFileDialog.OpenFile();
+                StreamReader reader = null;
+                var temp = new List<PointF>();
+                try
+                {
+                    reader = new StreamReader(fileStream);
+                    var line = reader.ReadLine();
+                    var N = uint.Parse(line);
+                    Regex spaceSpliter = new Regex(@"\s+");
+                    for (int i = 0; i < N; i++)
+                    {
+                        line = reader.ReadLine();
+                        var tokens = spaceSpliter.Split(line);
+                        var x = float.Parse(tokens[0]);
+                        var y = float.Parse(tokens[1]);
+                        temp.Add(new PointF(x, y));
+                    }
+
+                    points = temp;
+                    reDrawPoints();
+                }
+                catch(Exception ex)
+                {
+                    MessageBox.Show(ex.ToString());
+                }
+                finally
+                {
+                    if (reader!=null)
+                        reader.Close();
+                    fileStream.Close();
+                }
+            }
+        }
+
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Text Files (.txt)|*.txt";
+            var openFileOK = openFileDialog.ShowDialog();
+
+            if (openFileOK == DialogResult.OK)
+            {
+                StreamWriter writer = null;
+                try
+                {
+                    writer = new StreamWriter(openFileDialog.FileName, false);
+                    writer.WriteLine(points.Count);
+                    foreach (var point in points)
+                    {
+                        writer.WriteLine(point.X.ToString() + ' ' + point.Y.ToString());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.ToString());
+                }
+                finally
+                {
+                    if (writer != null)
+                        writer.Close();
+                }
+            }
         }
     }
 }
