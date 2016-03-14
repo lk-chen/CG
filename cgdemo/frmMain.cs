@@ -6,6 +6,7 @@ using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -15,20 +16,116 @@ namespace cgdemo
 {
     public partial class frmMain : Form
     {
-        private List<PointF> points;
+        private List<PointF> points = new List<PointF>();
         private Color pointColor = Color.Red;
+        private int pointDiameter = 8;
         private Color lineColor = Color.Black;
+        private BufferedGraphics[] bufferLayers;
         private const int margin = 12;
         private const int btnWidth = 80;
         private const int btnHeight = 40;
+        private enum BufferLayerType
+        {
+            TBackground,
+            TPoints,
+            THull,
+        };
 
         public frmMain()
         {
             InitializeComponent();
             setLayout();
-            points = new List<PointF>();
+            initBufferLayers();
         }
 
+        /// <summary>
+        /// Initialize graphics buffer layers, set background color
+        /// to be the same as system default.
+        /// </summary>
+        private void initBufferLayers()
+        {
+            bufferLayers = new BufferedGraphics[Enum.GetNames(typeof(BufferLayerType)).Length];
+
+            var curContext = BufferedGraphicsManager.Current;
+            for (int i = 0; i < bufferLayers.Length; i++)
+            {
+                bufferLayers[i] = curContext.Allocate(
+                    CreateGraphics(), DisplayRectangle);
+            }
+            bufferLayers[(int)BufferLayerType.TBackground].Graphics.Clear(BackColor);
+
+            reDrawPoints();
+        }
+
+        /// <summary>
+        /// Redraw all the points, used when some points are removed.
+        /// Then clear all the hull segments.
+        /// </summary>
+        private void reDrawPoints()
+        {
+            bufferLayers[(int)BufferLayerType.TBackground]
+                .Render(bufferLayers[(int)BufferLayerType.TPoints].Graphics);
+
+            var brush = new SolidBrush(pointColor);
+            foreach (var p in points)
+            {
+                bufferLayers[(int)BufferLayerType.TPoints].Graphics
+                    .FillEllipse(brush, p.X - pointDiameter / 2,
+                    p.Y - pointDiameter / 2, pointDiameter, pointDiameter);
+            }
+            brush.Dispose();
+
+            bufferLayers[(int)BufferLayerType.TPoints]
+                .Render(bufferLayers[(int)BufferLayerType.THull].Graphics);
+            drawHull(new uint[0]);
+        }
+
+        /// <summary>
+        /// Draw another point on point layer.
+        /// Then clear all the hull segments.
+        /// </summary>
+        private void drawPoint(PointF p)
+        {
+            var brush = new SolidBrush(pointColor);
+            bufferLayers[(int)BufferLayerType.TPoints].Graphics
+                .FillEllipse(brush, p.X - pointDiameter / 2,
+                p.Y - pointDiameter / 2, pointDiameter, pointDiameter);
+            brush.Dispose();
+
+            bufferLayers[(int)BufferLayerType.TPoints]
+                .Render(bufferLayers[(int)BufferLayerType.THull].Graphics);
+            drawHull(new uint[0]);
+        }
+
+        /// <summary>
+        /// Draw hull on the window form according to the given vertex index.
+        /// </summary>
+        /// <param name="ch">
+        /// Indices of all extreme points. </param>
+        private void drawHull(uint[] ch)
+        {
+            var h = ch.Length;
+            if (h <= 0)
+            {
+                bufferLayers[(int)BufferLayerType.THull]
+                    .Render(CreateGraphics());
+                return;
+            }
+            var hull = new PointF[h + 1];
+            for (int i = 0; i < h; i++)
+                hull[i] = points[(int)ch[i]];
+            hull[h] = hull[0];
+
+            var pen = new Pen(lineColor);
+            bufferLayers[(int)BufferLayerType.THull].Graphics
+                .DrawLines(pen, hull);
+            bufferLayers[(int)BufferLayerType.THull].Render();
+            pen.Dispose();
+        }
+
+        /// <summary>
+        /// Set static controls' layout, then set dynamic controls' layout.
+        /// </summary>
         private void setLayout()
         {
             foreach (Control b in this.Controls)
@@ -57,6 +154,17 @@ namespace cgdemo
             lblPoints.Left = btnSave.Right + margin;
             lblPoints.Top = margin;
             lblPoints.Text = "";
+
+            setDynamicLayout();
+        }
+
+        /// <summary>
+        /// Set dynamic controls' layout.
+        /// </summary>
+        private void setDynamicLayout()
+        {
+            lblCoord.Left = margin;
+            lblCoord.Top = ClientSize.Height - lblCoord.Height - margin;
         }
 
         private void btnDraw_Click(object sender, EventArgs e)
@@ -71,39 +179,46 @@ namespace cgdemo
 
             var ch = CH.getCH(X, Y);
 
-            var h = ch.Length;
-            if (h <= 0) return;
-            var hull = new PointF[h+1];
-            for (int i = 0; i < h; i++)
-                hull[i] = points[(int)ch[i]];
-            hull[h] = hull[0];
-            var g = this.CreateGraphics();
-            var pen = new Pen(lineColor);
-            g.DrawLines(pen, hull);
-            g.Dispose();
-            pen.Dispose();
+            drawHull(ch);
         }
 
         private void frmMain_Resize(object sender, EventArgs e)
         {
+            setDynamicLayout();
+            initBufferLayers();
+            btnDraw_Click(sender, e);
+        }
+
+        private void addPoint(PointF p)
+        {
+            points.Add(p);
+            drawPoint(p);
         }
 
         private void frmMain_MouseUp(object sender, MouseEventArgs e)
         {
-            var p = new PointF(e.X, e.Y);
-            points.Add(p);
-
-            var g = this.CreateGraphics();
-            var brush = new SolidBrush(pointColor);
-            int diameter = 8;
-            g.FillEllipse(brush, p.X - diameter/2, p.Y - diameter/2, diameter, diameter);
-            g.Dispose();
-            brush.Dispose();
+            addPoint(new PointF(e.X, e.Y));
         }
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
+            Regex numRegex = new Regex(@"^\d+(\.\d*)?$");
+            if (numRegex.IsMatch(txtX.Text) && numRegex.IsMatch(txtY.Text))
+            {
+                var x = float.Parse(txtX.Text);
+                var y = float.Parse(txtY.Text);
 
+                addPoint(new PointF(x, y));
+            }
+            else
+            {
+                MessageBox.Show("Please input numeric number.");
+            }
+        }
+
+        private void frmMain_MouseMove(object sender, MouseEventArgs e)
+        {
+            lblCoord.Text = '(' + e.X.ToString() + ',' + e.Y.ToString() + ')';
         }
     }
 }
