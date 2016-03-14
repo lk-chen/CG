@@ -3,20 +3,27 @@
 #include "CH.h"
 
 namespace wrapper {
-	array<size_t> ^CH::incremental(
-		array<long double>^ X, array<long double>^ Y) {
+	std::vector<clk::Point> CH::getPointsFromCoord(
+		array<long double>^ X, array<long double>^ Y)
+	{
 		auto sz = X->Length;
+		std::vector<clk::Point> points;
 
 		if (sz != Y->Length) {
-			auto res = gcnew array<size_t>(1);
-			res[0] = -1;
-			return res;
+			throw "X and Y have different length.";
 		}
 
-		std::vector<clk::Point> points;
 		for (int i = 0; i < sz; i++)
 			points.push_back(clk::Point(X[i], Y[i]));
-		auto r = clk::CH::incremental(points);
+
+		return points;
+	}
+	
+	array<size_t>^ CH::getCH(
+		array<long double>^ X, array<long double>^ Y)
+	{
+		auto points = getPointsFromCoord(X, Y);
+		auto r = clk::CH::grahamScan(points);
 
 		auto res = gcnew array<size_t>(r.size());
 		for (size_t i = 0; i < r.size(); i++)
