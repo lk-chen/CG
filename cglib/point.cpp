@@ -28,6 +28,24 @@ namespace clk {
 			&& (p._y == this->_y);
 	}
 
+	bool Point::operator!=(const Point &p) const
+	{
+		return !(operator==(p));
+	}
+
+	Point& Point::operator=(const Point &p)
+	{
+		_x = p._x;
+		_y = p._y;
+		return *this;
+	}
+
+	Point Point::operator-(const Point &p) const
+	{
+		Point ans(_x - p._x, _y - p._y);
+		return ans;
+	}
+
 	long double Point::X() const
 	{
 		return _x;

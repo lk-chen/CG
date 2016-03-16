@@ -49,6 +49,15 @@ namespace clk {
 		/// X and Y coordinates </returns>
 		bool operator==(const Point &p) const;
 
+		/// <summary> Not equal </summary>
+		bool operator!=(const Point &p) const;
+
+		/// <summary> Assignment </summary>
+		Point& operator=(const Point &p);
+
+		/// <summary> Subtract </summary>
+		Point operator-(const Point &p) const;
+
 		/// <summary> get X coordinate </summary>
 		long double X() const;
 
@@ -64,6 +73,7 @@ namespace clk {
 		/// of vector (p,q), or
 		/// 2) current instance lies on the extension of
 		/// vector (p,q), excluding p and q. </returns>
+		/// <remarks> If p and q overlap, returns false </remarks>
 		bool toLeft(const Point &p, const Point &q) const;
 
 		/// <summary> Mirror image of toLeft </summary>

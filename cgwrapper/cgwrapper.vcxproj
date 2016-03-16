@@ -131,9 +131,11 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="wCH.h" />
+    <ClInclude Include="wIntersection.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="wCH.cpp" />
+    <ClCompile Include="wIntersection.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

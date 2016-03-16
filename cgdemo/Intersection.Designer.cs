@@ -28,13 +28,25 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.btnDraw = new System.Windows.Forms.Button();
             this.SuspendLayout();
+            // 
+            // btnDraw
+            // 
+            this.btnDraw.Location = new System.Drawing.Point(62, 40);
+            this.btnDraw.Name = "btnDraw";
+            this.btnDraw.Size = new System.Drawing.Size(120, 65);
+            this.btnDraw.TabIndex = 0;
+            this.btnDraw.Text = "Draw";
+            this.btnDraw.UseVisualStyleBackColor = true;
+            this.btnDraw.Click += new System.EventHandler(this.btnDraw_Click);
             // 
             // Intersection
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1013, 640);
+            this.Controls.Add(this.btnDraw);
             this.Name = "Intersection";
             this.Text = "Intersection";
             this.ResumeLayout(false);
@@ -42,5 +54,7 @@
         }
 
         #endregion
+
+        private System.Windows.Forms.Button btnDraw;
     }
 }
