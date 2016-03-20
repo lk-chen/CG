@@ -58,6 +58,9 @@ namespace clk {
 		/// <summary> Subtract </summary>
 		Point operator-(const Point &p) const;
 
+		/// <summary> Add </summary>
+		Point operator+(const Point &p) const;
+
 		/// <summary> get X coordinate </summary>
 		long double X() const;
 

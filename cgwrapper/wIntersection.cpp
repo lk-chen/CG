@@ -1,12 +1,14 @@
 #include "wIntersection.h"
 #include "Intersection.h"
 
+using std::vector;
+
 namespace wrapper {
-	std::vector<clk::Segment> Intersection::getSegsFromCoord(
+	vector<clk::Segment> Intersection::getSegsFromCoord(
 		array<long double>^ X, array<long double>^ Y)
 	{
 		auto sz = X->Length;
-		std::vector<clk::Segment> segs;
+		vector<clk::Segment> segs;
 
 		if (sz != Y->Length)
 			throw "X and Y have different length.";
@@ -27,7 +29,7 @@ namespace wrapper {
 		array<long double>^ X, array<long double>^ Y)
 	{
 		auto segs = getSegsFromCoord(X, Y);
-		auto intPoints = clk::Intersection::BOSweep(segs);
+		auto intPoints = clk::Intersection::BruteForce(segs);
 
 		auto res = gcnew array<long double>(intPoints.size() * 2);
 		for (size_t i = 0; i < intPoints.size(); i++)

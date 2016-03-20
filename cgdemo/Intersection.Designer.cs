@@ -49,6 +49,8 @@
             this.Controls.Add(this.btnDraw);
             this.Name = "Intersection";
             this.Text = "Intersection";
+            this.MouseDown += new System.Windows.Forms.MouseEventHandler(this.Intersection_MouseDown);
+            this.MouseUp += new System.Windows.Forms.MouseEventHandler(this.Intersection_MouseUp);
             this.ResumeLayout(false);
 
         }

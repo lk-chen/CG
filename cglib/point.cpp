@@ -42,8 +42,12 @@ namespace clk {
 
 	Point Point::operator-(const Point &p) const
 	{
-		Point ans(_x - p._x, _y - p._y);
-		return ans;
+		return Point(_x - p._x, _y - p._y);
+	}
+
+	Point Point::operator+(const Point &p) const
+	{
+		return Point(_x + p._x, _y + p._y);
 	}
 
 	long double Point::X() const

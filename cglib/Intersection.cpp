@@ -1,5 +1,7 @@
 #include "Intersection.h"
 
+using std::vector;
+
 namespace clk {
 	bool Intersection::pointOnSegment(const Point &p, const Segment &seg) {
 		if (seg.first == seg.second)
@@ -9,25 +11,20 @@ namespace clk {
 	}
 
 	bool Intersection::segmentIntersect(const Segment& seg1, const Segment& seg2, Point& p) {
-		auto &p1 = seg1.first;
-		auto &q1 = seg1.second;
-		auto &p2 = seg2.first;
-		auto &q2 = seg2.second;
-
-		if (pointOnSegment(p1, seg2)) {
-			p = p1;
+		if (pointOnSegment(seg1.first, seg2)) {
+			p = seg1.first;
 			return true;
 		}
-		if (pointOnSegment(q1, seg2)) {
-			p = q1;
+		if (pointOnSegment(seg1.second, seg2)) {
+			p = seg1.second;
 			return true;
 		}
-		if (pointOnSegment(p2, seg1)) {
-			p = p2;
+		if (pointOnSegment(seg2.first, seg1)) {
+			p = seg2.first;
 			return true;
 		}
-		if (pointOnSegment(q2, seg1)) {
-			p = q2;
+		if (pointOnSegment(seg2.second, seg1)) {
+			p = seg2.second;
 			return true;
 		}
 
@@ -41,9 +38,9 @@ namespace clk {
 		{
 			auto alpha = (c.X()*b.Y() - c.Y()*b.X()) / denom;
 			if (alpha >= 0 && alpha <= 1) {
-				auto x0 = (alpha*a.X() + (1 - alpha)*b.X())*c.Y();
-				auto y0 = (alpha*a.Y() + (1 - alpha)*b.Y())*c.X();
-				p = Point(x0, y0);
+				auto x0 = (alpha*a.X() + (1 - alpha)*b.X());
+				auto y0 = (alpha*a.Y() + (1 - alpha)*b.Y());
+				p = Point(x0, y0) + seg1.first;
 				return true;
 			}
 			else
@@ -51,8 +48,14 @@ namespace clk {
 		}
 	}
 
-	std::vector<Point> Intersection::BOSweep(const std::vector<Segment> &segs) {
+	vector<Point> Intersection::BOSweep(const vector<Segment> &segs) {
 		std::vector<Point> intPoints;
+
+		return intPoints;
+	}
+
+	vector<Point> Intersection::BruteForce(const vector<Segment> &segs) {
+		vector<Point> intPoints;
 
 		for (size_t i = 0; i < segs.size(); i++)
 			for (size_t j = 0; j < i; j++)

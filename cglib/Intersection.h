@@ -25,5 +25,8 @@ namespace clk {
 	public:
 		/// <summary> Bentley-Ottmann Sweep algorithm </summary>
 		static std::vector<Point> BOSweep(const std::vector<Segment> &segs);
+
+		/// <summary> Brute-Force method </summary>
+		static std::vector<Point> BruteForce(const std::vector<Segment> &segs);
 	};
 }
