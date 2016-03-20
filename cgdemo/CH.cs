@@ -115,14 +115,13 @@ namespace cgdemo
                     .Render(CreateGraphics());
                 return;
             }
-            var hull = new PointF[h + 1];
+            var hull = new PointF[h];
             for (int i = 0; i < h; i++)
                 hull[i] = points[(int)ch[i]];
-            hull[h] = hull[0];
 
             var pen = new Pen(lineColor);
             bufferLayers[(int)BufferLayerType.THull].Graphics
-                .DrawLines(pen, hull);
+                .DrawPolygon(pen, hull);
             bufferLayers[(int)BufferLayerType.THull].Render();
             pen.Dispose();
         }
