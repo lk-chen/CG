@@ -1,4 +1,7 @@
 #include "Intersection.h"
+#include <vector>
+#include <set>
+#include <iostream>
 
 using std::vector;
 
@@ -49,18 +52,20 @@ namespace clk {
 	}
 
 	vector<Point> Intersection::BOSweep(const vector<Segment> &segs) {
-		std::vector<Point> intPoints;
+		vector<Point> intPoints;
+
+
 
 		return intPoints;
 	}
 
 	vector<Point> Intersection::BruteForce(const vector<Segment> &segs) {
 		vector<Point> intPoints;
+		Point p(0, 0);
 
 		for (size_t i = 0; i < segs.size(); i++)
 			for (size_t j = 0; j < i; j++)
 			{
-				Point p(0, 0);
 				if (segmentIntersect(segs[i], segs[j], p))
 					intPoints.push_back(p);
 			}

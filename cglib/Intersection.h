@@ -24,6 +24,7 @@ namespace clk {
 		static bool segmentIntersect(const Segment& seg1, const Segment& seg2, Point& p);
 	public:
 		/// <summary> Bentley-Ottmann Sweep algorithm </summary>
+		/// <remarks> This implementation uses a top-down sweep line <remarks>
 		static std::vector<Point> BOSweep(const std::vector<Segment> &segs);
 
 		/// <summary> Brute-Force method </summary>
