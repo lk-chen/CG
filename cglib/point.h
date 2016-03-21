@@ -6,10 +6,11 @@
 namespace clk {
 	/// <summary> Point in 2-D </summary>
 	class DLLEXP Point {
-	private:
+	protected:
 		/// <summary> X and Y coordinates </summary>
 		long double _x, _y;
 
+	private:
 		/// <summary>
 		/// Help the toLeft test  </summary>
 		/// <param name="p">

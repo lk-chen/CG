@@ -131,7 +131,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="..\cgdemo\bin\Debug\ch.txt" />
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
