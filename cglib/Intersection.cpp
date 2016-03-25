@@ -100,39 +100,44 @@ namespace clk {
 			}
 
 		public:
-			bool operator()(const Segment &a, const Segment &b) {
-				auto aIntX = getIntX(a);
-				auto bIntX = getIntX(b);
+			bool operator()(const Segment *a, const Segment *b) {
+				auto aIntX = getIntX(*a);
+				auto bIntX = getIntX(*b);
 				if (aIntX < bIntX) return true;
 				else if (bIntX < aIntX) return false;
 				else
 				{
-					if (a.isHorizontal()) {
-						if (b.isHorizontal())
-							return a.second.X() < b.second.X();
+					if (a->isHorizontal()) {
+						if (b->isHorizontal())
+							return a->second.X() < b->second.X();
 						else
 							return true;
 					}
 					else {
-						if (b.isHorizontal())
+						if (b->isHorizontal())
 							return false;
 						else {
-							if (a.invSlope() < b.invSlope())
+							if (a->invSlope() < b->invSlope())
 								return true;
-							else if (b.invSlope() < a.invSlope())
+							else if (b->invSlope() < a->invSlope())
 								return false;
-							else if (a.first.X() < b.first.X())
+							else if (a->first.X() < b->first.X())
 								return true;
-							else if (b.first.X() < a.first.X())
+							else if (b->first.X() < a->first.X())
 								return false;
-							else 
-								return (a.second.X() < b.second.X());
+							else if (a->second.X() < b->second.X())
+								return true;
+							else if (b->second.X() < a->second.X())
+								return false;
+							else
+								return (a < b);
 						}
 					}
 				}
 			}
 		};
-		set<Segment, CompSegPos> SLS();
+
+		set<const Segment*, CompSegPos> SLS;
 		priority_queue<Event> EQ;
 		vector<Point> intPoints;
 		Point intPoint(0, 0);
@@ -148,20 +153,54 @@ namespace clk {
 			}
 		}
 
-		sweepLine = EQ.top().p.Y();
-
 		while (!EQ.empty())
 		{
-			auto &e = EQ.top();
-			std::cout << e.p.toString();
-			if (!e.seg1)
-				std::cout << "end\n";
-			else if (!e.seg2)
-				std::cout << "start\n";
-			else
-				std::cout << "int\n";
-			intPoints.push_back(e.p);
+			auto e = EQ.top();
 			EQ.pop();
+			sweepLine = e.p.Y();
+			
+			if (!e.seg2) {
+				SLS.insert(e.seg1);
+				auto cur = SLS.find(e.seg1);
+				
+				if (e.seg1->isHorizontal()) {
+					cur++;
+					while (cur!=SLS.end())
+					{
+						if (segmentIntersect(*e.seg1, *(*cur), intPoint))
+							EQ.push(Event(intPoint, e.seg1, *cur));
+						else
+							break;
+					}
+				}
+				else
+				{
+					if (cur != SLS.begin()) {
+						cur--;
+						if (segmentIntersect(*e.seg1, *(*cur), intPoint))
+							EQ.push(Event(intPoint, e.seg1, *cur));
+						cur++;
+					}
+					cur++;
+					if (cur != SLS.end()) {
+						if (segmentIntersect(*e.seg1, *(*cur), intPoint))
+							EQ.push(Event(intPoint, e.seg1, *cur));
+					}
+				}
+			}
+			else if (!e.seg1) {
+				SLS.erase(e.seg2);
+				auto succ = SLS.upper_bound(e.seg2);
+				if (succ != SLS.end() && succ != SLS.begin()) {
+					auto pre = succ--;
+					succ++;
+					if (segmentIntersect(*(*pre), *(*succ), intPoint))
+						EQ.push(Event(intPoint, *pre, *succ));
+				}
+			}
+			else {
+				intPoints.push_back(e.p);
+			}
 		}
 
 		return intPoints;
