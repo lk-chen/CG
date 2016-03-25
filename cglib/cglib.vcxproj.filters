@@ -27,6 +27,9 @@
     <ClCompile Include="Intersection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="segment.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CH.h">
@@ -36,6 +39,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Intersection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="segment.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

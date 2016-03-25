@@ -67,11 +67,12 @@ namespace cgdemo
         private void Intersection_MouseUp(object sender, MouseEventArgs e)
         {
             segmentEndPoints.Add(new PointF(e.X, e.Y));
-            var g = CreateGraphics();
-            g.DrawLine(new Pen(Color.Black),
-                segmentEndPoints[segmentEndPoints.Count - 2],
-                segmentEndPoints[segmentEndPoints.Count - 1]);
-            g.Dispose();
+            using (var g = CreateGraphics())
+            {
+                g.DrawLine(new Pen(Color.Black),
+                    segmentEndPoints[segmentEndPoints.Count - 2],
+                    segmentEndPoints[segmentEndPoints.Count - 1]);
+            }
         }
     }
 }

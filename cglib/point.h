@@ -84,7 +84,7 @@ namespace clk {
 		bool toRight(const Point &p, const Point &q) const;
 
 		/// <summary> Convert x y coordinate to string </summary>
-		std::string toString();
+		std::string toString() const;
 	};
 
 	/// <summary> Non-repeated point </summary>

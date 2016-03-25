@@ -76,7 +76,7 @@ namespace clk {
 		else return q.between(p, *this);
 	}
 
-	std::string Point::toString()
+	std::string Point::toString() const
 	{
 		std::ostringstream sstr;
 		sstr << '(' << _x << ',' << _y << ')';

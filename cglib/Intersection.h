@@ -1,9 +1,8 @@
 #pragma once
 #include "point.h"
+#include "segment.h"
 
 namespace clk {
-	typedef std::pair<Point, Point> Segment;
-
 	/// <summary> Intersection <summary>
 	class DLLEXP Intersection {
 	private:

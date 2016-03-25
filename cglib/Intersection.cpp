@@ -1,9 +1,15 @@
 #include "Intersection.h"
 #include <vector>
 #include <set>
+#include <queue>
 #include <iostream>
+#include <string>
 
 using std::vector;
+using std::set;
+using std::priority_queue;
+using std::min;
+using std::max;
 
 namespace clk {
 	bool Intersection::pointOnSegment(const Point &p, const Segment &seg) {
@@ -52,9 +58,109 @@ namespace clk {
 	}
 
 	vector<Point> Intersection::BOSweep(const vector<Segment> &segs) {
+		struct Event {
+			Point p;
+			const Segment *seg1;
+			const Segment *seg2;
+
+			Event(const Point& xp, decltype(seg1) xseg1, decltype(seg2) xseg2) :
+				p(xp), seg1(xseg1), seg2(xseg2) {};
+
+			Event &operator=(const Event &e) {
+				p = e.p;
+				seg1 = e.seg1;
+				seg2 = e.seg2;
+
+				return *this;
+			}
+
+			bool operator<(const Event& that) const {
+				if (p.Y() > that.p.Y()) return false;
+				else if (p.Y() < that.p.Y()) return true;
+				else if (seg1 && seg2) return false;
+				else if (that.seg1 && that.seg2) return true;
+				else if (seg1) return false;
+				else if (that.seg1) return true;
+				else if (seg2) return false;
+				else throw "Both seg1 and seg2 of Event are NULL.";
+			}
+		};
+		static decltype(segs[0].first.X()) sweepLine;
+		struct CompSegPos {
+		private:
+			auto getIntX(const Segment &seg) {
+				if (seg.isHorizontal())
+					return seg.first.X();
+				else
+					return seg.invSlope()
+						*(sweepLine - seg.second.Y())
+						+ seg.second.X();
+			}
+
+		public:
+			bool operator()(const Segment &a, const Segment &b) {
+				auto aIntX = getIntX(a);
+				auto bIntX = getIntX(b);
+				if (aIntX < bIntX) return true;
+				else if (bIntX < aIntX) return false;
+				else
+				{
+					if (a.isHorizontal()) {
+						if (b.isHorizontal())
+							return a.second.X() < b.second.X();
+						else
+							return true;
+					}
+					else {
+						if (b.isHorizontal())
+							return false;
+						else {
+							if (a.invSlope() < b.invSlope())
+								return true;
+							else if (b.invSlope() < a.invSlope())
+								return false;
+							else if (a.first.X() < b.first.X())
+								return true;
+							else if (b.first.X() < a.first.X())
+								return false;
+							else 
+								return (a.second.X() < b.second.X());
+						}
+					}
+				}
+			}
+		};
+		set<Segment, CompSegPos> SLS();
+		priority_queue<Event> EQ;
 		vector<Point> intPoints;
+		Point intPoint(0, 0);
 
+		for (auto &seg : segs) {
+			if (seg.first.Y() > seg.second.Y()) {
+				EQ.push(Event(seg.first, &seg, nullptr));
+				EQ.push(Event(seg.second, nullptr, &seg));
+			}
+			else {
+				EQ.push(Event(seg.second, &seg, nullptr));
+				EQ.push(Event(seg.first, nullptr, &seg));
+			}
+		}
 
+		sweepLine = EQ.top().p.Y();
+
+		while (!EQ.empty())
+		{
+			auto &e = EQ.top();
+			std::cout << e.p.toString();
+			if (!e.seg1)
+				std::cout << "end\n";
+			else if (!e.seg2)
+				std::cout << "start\n";
+			else
+				std::cout << "int\n";
+			intPoints.push_back(e.p);
+			EQ.pop();
+		}
 
 		return intPoints;
 	}
