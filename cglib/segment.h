@@ -20,10 +20,10 @@ namespace clk {
 		bool isVertical() const;
 
 		/// <summary> Get slope of segment, deltaY / deltaX </summary>
-		auto slope() const;
+		long double slope() const;
 
 		/// <summary> Get inverse slope of segment, deltaX / deltaY </summary>
-		auto invSlope() const;
+		long double invSlope() const;
 	private:
 	};
 }

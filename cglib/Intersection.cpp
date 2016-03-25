@@ -37,24 +37,26 @@ namespace clk {
 			return true;
 		}
 
-		auto &a = seg2.first - seg1.first;
-		auto &b = seg2.second - seg1.first;
-		auto &c = seg1.second - seg1.first;
-		auto denom = c.Y()*(a.X() - b.X()) - c.X()*(a.Y() - b.Y());
-		if (denom == 0)
-			return false;
-		else
-		{
-			auto alpha = (c.X()*b.Y() - c.Y()*b.X()) / denom;
-			if (alpha >= 0 && alpha <= 1) {
+		if ((seg1.first.toLeft(seg2.first, seg2.second) ^ seg1.second.toLeft(seg2.first, seg2.second))
+			&& (seg2.first.toLeft(seg1.first, seg1.second) ^ seg2.second.toLeft(seg1.first, seg1.second))) {
+			auto &a = seg2.first - seg1.first;
+			auto &b = seg2.second - seg1.first;
+			auto &c = seg1.second - seg1.first;
+			auto denom = c.Y()*(a.X() - b.X()) - c.X()*(a.Y() - b.Y());
+			if (denom == 0)
+				return false;
+			else
+			{
+				auto alpha = (c.X()*b.Y() - c.Y()*b.X()) / denom;
+
 				auto x0 = (alpha*a.X() + (1 - alpha)*b.X());
 				auto y0 = (alpha*a.Y() + (1 - alpha)*b.Y());
 				p = Point(x0, y0) + seg1.first;
 				return true;
 			}
-			else
-				return false;
 		}
+		else
+			return false;
 	}
 
 	vector<Point> Intersection::BOSweep(const vector<Segment> &segs) {

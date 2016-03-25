@@ -29,7 +29,7 @@ namespace wrapper {
 		array<long double>^ X, array<long double>^ Y)
 	{
 		auto segs = getSegsFromCoord(X, Y);
-		auto intPoints = clk::Intersection::BOSweep(segs);
+		auto intPoints = clk::Intersection::BruteForce(segs);
 
 		auto res = gcnew array<long double>(intPoints.size() * 2);
 		for (size_t i = 0; i < intPoints.size(); i++)
