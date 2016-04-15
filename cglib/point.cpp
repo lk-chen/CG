@@ -16,9 +16,9 @@ namespace clk {
 			< 0;
 	}
 
-	Point::Point(long double x, long double y) :_x(x), _y(y) { }
+	Point::Point(long double x, long double y) :_x(x), _y(y), x(_x), y(_y) { }
 
-	Point::Point(const Point & p) : _x(p._x), _y(p._y) { }
+	Point::Point(const Point & p) : _x(p._x), _y(p._y), x(_x), y(_y) { }
 
 	Point::~Point() {}
 
@@ -48,16 +48,6 @@ namespace clk {
 	Point Point::operator+(const Point &p) const
 	{
 		return Point(_x + p._x, _y + p._y);
-	}
-
-	long double Point::X() const
-	{
-		return _x;
-	}
-
-	long double Point::Y() const
-	{
-		return _y;
 	}
 
 	bool Point::toLeft(const Point &p, const Point &q) const

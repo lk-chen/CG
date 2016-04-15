@@ -44,6 +44,9 @@ namespace clk {
 		/// <summary> Destructor </summary>
 		~Point();
 
+		/// <summary> readonly x, y </summary>
+		const long double &x, &y;
+
 		/// <summary> Equal operator </summary>
 		/// <returns>
 		/// Return true if two points have the same

@@ -47,15 +47,15 @@ namespace clk {
 			auto &a = seg2.first - seg1.first;
 			auto &b = seg2.second - seg1.first;
 			auto &c = seg1.second - seg1.first;
-			auto denom = c.Y()*(a.X() - b.X()) - c.X()*(a.Y() - b.Y());
+			auto denom = c.y*(a.x - b.x) - c.x*(a.y - b.y);
 			if (denom == 0)
 				return false;
 			else
 			{
-				auto alpha = (c.X()*b.Y() - c.Y()*b.X()) / denom;
+				auto alpha = (c.x*b.y - c.y*b.x) / denom;
 
-				auto x0 = (alpha*a.X() + (1 - alpha)*b.X());
-				auto y0 = (alpha*a.Y() + (1 - alpha)*b.Y());
+				auto x0 = (alpha*a.x + (1 - alpha)*b.x);
+				auto y0 = (alpha*a.y + (1 - alpha)*b.y);
 				p = Point(x0, y0) + seg1.first;
 				return true;
 			}
@@ -74,8 +74,8 @@ namespace clk {
 		long double leftBound = 0;
 
 		for (auto &seg : segs) {
-			leftBound = min(leftBound, seg.first.X()) - 1;
-			if (seg.first.Y() < seg.second.Y()) {
+			leftBound = min(leftBound, seg.first.x) - 1;
+			if (seg.first.y < seg.second.y) {
 				EQ.push(Event(seg.second, &seg, nullptr));
 				EQ.push(Event(seg.first, nullptr, &seg));
 			}
@@ -144,13 +144,14 @@ namespace clk {
 		p = e.p;
 		seg1 = e.seg1;
 		seg2 = e.seg2;
+		type = e.type;
 
 		return *this;
 	}
 	
 	bool Intersection::BOSweep::Event::operator<(const Event & that) const {
-		if (p.Y() != that.p.Y()) return p.Y() < that.p.Y();
-		else if (p.X() != that.p.X()) return p.X() > that.p.X();
+		if (p.y != that.p.y) return p.y < that.p.y;
+		else if (p.x != that.p.x) return p.x > that.p.x;
 		else if (type != that.type) return type < that.type;
 		else if (seg1 != that.seg1) return seg1 < that.seg1;
 		else if (seg2 != that.seg2) return seg2 < that.seg2;
@@ -159,9 +160,9 @@ namespace clk {
 
 	void Intersection::BOSweep::EventQueue::push(value_type & val) {
 		if (val.type == Event::intsect) {
-			if (val.p.Y() > sweepLine->Y())
+			if (val.p.y > sweepLine->y)
 				return;
-			else if (val.p.Y() == sweepLine->Y() && val.p.X() < sweepLine->X())
+			else if (val.p.y == sweepLine->y && val.p.x < sweepLine->x)
 				return;
 		}
 		try
@@ -176,9 +177,9 @@ namespace clk {
 	
 	long double Intersection::BOSweep::CompSegPos::getIntX(const Segment & seg) {
 		if (seg.isHorizontal())
-			return seg.first.X();
+			return seg.first.x;
 		else
-			return (seg.c - seg.b * sweepLine->Y()) / seg.a;
+			return (seg.c - seg.b * sweepLine->y) / seg.a;
 	}
 	
 	bool Intersection::BOSweep::CompSegPos::operator()(const Segment * a, const Segment * b) {

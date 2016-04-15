@@ -7,25 +7,25 @@ using std::numeric_limits;
 namespace clk {
 	Segment::Segment(const Point &p, const Point &q)
 		: pair(p, q), a(_a), b(_b), c(_c) {
-		if (p.X() > q.X())
+		if (p.x > q.x)
 			std::swap(first, second);
-		else if (p.X() == q.X() && p.Y() > q.Y())
+		else if (p.x == q.x && p.y > q.y)
 			std::swap(first, second);
 
-		if (p.X() == q.X()) {
+		if (p.x == q.x) {
 			_b = 0;
 			_a = 1;
-			_c = p.X();
+			_c = p.x;
 		}
-		else if (p.Y() == q.Y()) {
+		else if (p.y == q.y) {
 			_a = 0;
 			_b = 1;
-			_c = p.Y();
+			_c = p.y;
 		}
 		else {
-			_a = p.Y() - q.Y();
-			_b = q.X() - p.X();
-			_c = a*p.X() + b*p.Y();
+			_a = p.y - q.y;
+			_b = q.x - p.x;
+			_c = a*p.x + b*p.y;
 		}
 	}
 
@@ -38,16 +38,16 @@ namespace clk {
 	long double Segment::slope() const
 	{
 		if (!isVertical())
-			return (second.Y() - first.Y()) / (second.X() - first.X());
+			return (second.y - first.y) / (second.x - first.x);
 		else
-			return numeric_limits<decltype(first.X())>::max();
+			return numeric_limits<long double>::max();
 	}
 
 	long double Segment::invSlope() const
 	{
 		if (!isHorizontal())
-			return (second.X() - first.X()) / (second.Y() - first.Y());
+			return (second.x - first.x) / (second.y - first.y);
 		else
-			return numeric_limits<decltype(first.X())>::max();
+			return numeric_limits<long double>::max();
 	}
 }
