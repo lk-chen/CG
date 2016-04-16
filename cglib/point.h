@@ -36,7 +36,7 @@ namespace clk {
 		bool between(const Point &p, const Point &q) const;
 	public:
 		/// <summary> Explicity constructor </summary>
-		Point(long double x, long double y);
+		Point(long double x = 0, long double y = 0);
 
 		/// <summary> Copy constructor </summary>
 		Point(const Point& p);

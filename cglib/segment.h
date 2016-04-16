@@ -13,6 +13,9 @@ namespace clk {
 		/// <summary> Destructor </summary>
 		~Segment();
 
+		/// <summary> readonly a, b, and c </summary>
+		const long double &a, &b, &c;
+
 		/// <summary> Return if segment is horizontal </summary>
 		bool isHorizontal() const;
 
@@ -25,5 +28,6 @@ namespace clk {
 		/// <summary> Get inverse slope of segment, deltaX / deltaY </summary>
 		long double invSlope() const;
 	private:
+		long double _a, _b, _c;
 	};
 }
