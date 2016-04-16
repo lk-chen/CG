@@ -65,12 +65,6 @@ namespace clk {
 		/// <summary> Add </summary>
 		Point operator+(const Point &p) const;
 
-		/// <summary> get X coordinate </summary>
-		long double X() const;
-
-		/// <summary> get Y coordinate </summary>
-		long double Y() const;
-
 		/// <summary> To Left Test </summary>
 		/// <param name="p"> Start of the vector </param>
 		/// <param name="q"> End of the vector </param>

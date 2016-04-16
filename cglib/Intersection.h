@@ -1,8 +1,6 @@
 #pragma once
 #include "point.h"
 #include "segment.h"
-#include <exception>
-#include <queue>
 #include <set>
 #include <vector>
 #include <tuple>
@@ -50,37 +48,43 @@ namespace clk {
 				bool operator<(const Event& that) const;
 			};
 
-			class EventQueue : public std::priority_queue<Event> {
+			class EventQueue {
 			private:
-				Point *sweepLine;
+				const Point &sweepPoint;
+				const Segment &sweepSlope;
+				std::set<Event> pq;
 			public:
-				void push(value_type &val);
+				void push(Event &val);
 
-				void setSweepLine(decltype(sweepLine) sl) { sweepLine = sl; }
+				const Event& top() const { return *(pq.rbegin()); };
+
+				void pop() { pq.erase(top()); };
+
+				bool empty() { return pq.empty(); };
+
+				EventQueue(Point &_sp, Segment &_ss) :sweepPoint(_sp), sweepSlope(_ss) {};
+			};
+
+			struct SegmentPosition {
+				const Segment &seg;
+				const Point &sweepPoint;
+				const Segment &sweepSlope;
+
+				SegmentPosition(const Segment &_seg, const Point &_sp, const Segment &_ss) :
+					seg(_seg), sweepPoint(_sp), sweepSlope(_ss) {};
 			};
 
 			struct CompSegPos {
 			private:
-				Point *sweepLine;
-
-				long double getIntX(const Segment &seg);
+				long double _intX(const SegmentPosition &seg);
 
 			public:
-				void setSweepLine(decltype(sweepLine) sl) { sweepLine = sl; }
-
-				bool operator()(const Segment *a, const Segment *b);
+				bool operator()(const SegmentPosition &a, const SegmentPosition &b);
 			};
 
-			class SweepLineStatus : public std::set<const Segment*, CompSegPos> {
+			class SweepLineStatus : public std::set<SegmentPosition, CompSegPos> {
 			private:
-				Point *sweepLine;
 			public:
-				void setSweepLine(decltype(sweepLine) sl) {
-					sweepLine = sl;
-					key_comp().setSweepLine(sl);
-				}
-
-
 			};
 		public:
 			static std::vector<std::tuple<Point, size_t, size_t>> compute(const std::vector<Segment> &segs);

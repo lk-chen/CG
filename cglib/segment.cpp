@@ -7,9 +7,9 @@ using std::numeric_limits;
 namespace clk {
 	Segment::Segment(const Point &p, const Point &q)
 		: pair(p, q), a(_a), b(_b), c(_c) {
-		if (p.x > q.x)
+		if (p.y < q.y)
 			std::swap(first, second);
-		else if (p.x == q.x && p.y > q.y)
+		else if (p.y == q.y && p.x > q.x)
 			std::swap(first, second);
 
 		if (p.x == q.x) {
@@ -35,19 +35,34 @@ namespace clk {
 
 	bool Segment::isVertical() const { return b == 0; }
 
-	long double Segment::slope() const
+	bool Segment::operator==(const Segment & that) const
 	{
-		if (!isVertical())
-			return (second.y - first.y) / (second.x - first.x);
-		else
-			return numeric_limits<long double>::max();
+		return (first == that.first) && (second == that.second);
 	}
 
-	long double Segment::invSlope() const
+	bool Segment::operator!=(const Segment & that) const
 	{
-		if (!isHorizontal())
-			return (second.x - first.x) / (second.y - first.y);
-		else
-			return numeric_limits<long double>::max();
+		return !operator==(that);
+	}
+
+	Segment & Segment::operator=(const Segment & that) {
+		first = that.first;
+		second = that.second;
+		_a = that.a;
+		_b = that.b;
+		_c = that.c;
+
+		return *this;
+	}
+
+	bool Segment::compareSlope(const Segment &that) const {
+		bool flip = (a*that.a != 0) ? (a*that.a < 0) : (a + that.a < 0);
+		bool result = b*that.a > a*that.b;
+		return flip^result;
+	}
+
+	bool Segment::parallel(const Segment & that) const
+	{
+		return compareSlope(that) == that.compareSlope(*this);
 	}
 }

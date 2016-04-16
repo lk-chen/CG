@@ -36,8 +36,8 @@ namespace wrapper {
 		auto res = gcnew array<long double>(intPoints.size() * 2);
 		for (size_t i = 0; i < intPoints.size(); i++)
 		{
-			res[2 * i] = get<0>(intPoints[i]).X();
-			res[2 * i + 1] = get<0>(intPoints[i]).Y();
+			res[2 * i] = get<0>(intPoints[i]).x;
+			res[2 * i + 1] = get<0>(intPoints[i]).y;
 		}
 
 		return res;

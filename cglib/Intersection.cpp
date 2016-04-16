@@ -1,7 +1,6 @@
 #include "Intersection.h"
 #include <vector>
 #include <set>
-#include <queue>
 #include <iostream>
 #include <string>
 #include <tuple>
@@ -9,12 +8,13 @@
 
 using std::vector;
 using std::set;
-using std::priority_queue;
 using std::tuple;
 using std::make_tuple;
 using std::swap;
 using std::min;
 using std::max;
+using std::upper_bound;
+using std::lower_bound;
 
 namespace clk {
 	bool Intersection::pointOnSegment(const Point &p, const Segment &seg) {
@@ -24,7 +24,10 @@ namespace clk {
 			return !p.toLeft(seg.first, seg.second) && !p.toLeft(seg.second, seg.first);
 	}
 
-	bool Intersection::segmentIntersect(const Segment& seg1, const Segment& seg2, Point& p) {
+	bool Intersection::segmentIntersect(const Segment& xseg1, const Segment& xseg2, Point& p) {
+		const Segment *p1 = &xseg1, *p2 = &xseg2;
+		if (p1 < p2)swap(p1, p2);
+		auto &seg1 = *p1, &seg2 = *p2;
 		if (pointOnSegment(seg1.first, seg2)) {
 			p = seg1.first;
 			return true;
@@ -66,42 +69,73 @@ namespace clk {
 
 	vector<tuple<Point, size_t, size_t>> Intersection::BOSweep::compute(const vector<Segment> &segs) {
 		vector<tuple<Point, size_t, size_t>> intPoints;
+		if (segs.size() < 2) return intPoints;
+		Point sweepPoint;
+		Segment sweepSlope(segs[0].first, segs[1].second);
 		SweepLineStatus SLS;
-		EventQueue EQ;
-		Point sweepLine, intPoint;
-		SLS.setSweepLine(&sweepLine);
-		EQ.setSweepLine(&sweepLine);
-		long double leftBound = 0;
+		EventQueue EQ(sweepPoint,sweepSlope);
+		Point intPoint;
 
 		for (auto &seg : segs) {
-			leftBound = min(leftBound, seg.first.x) - 1;
-			if (seg.first.y < seg.second.y) {
-				EQ.push(Event(seg.second, &seg, nullptr));
-				EQ.push(Event(seg.first, nullptr, &seg));
-			}
-			else {
-				EQ.push(Event(seg.first, &seg, nullptr));
-				EQ.push(Event(seg.second, nullptr, &seg));
-			}
+			EQ.push(Event(seg.first, &seg, nullptr));
+			EQ.push(Event(seg.second, nullptr, &seg));
 		}
 
 		while (!EQ.empty())
 		{
 			auto event = EQ.top();
-			EQ.pop();
+			decltype(SLS.begin()) it1, it2, it3, it4;
+			sweepPoint = event.p;
 
 			if (event.type == Event::start) {
-				auto res = SLS.insert(event.seg1);
-				auto it = res.first;
+				sweepSlope = *event.seg1;
+				SegmentPosition sp(*event.seg1, sweepPoint, sweepSlope);
+				SLS.insert(sp);
+				it1 = it2 = it3 = it4 = SLS.find(sp);
+				it1--;
+				it4++;
 			}
 			else if (event.type == Event::end) {
-				SLS.erase(event.seg2);
+				sweepSlope = *event.seg2;
+				SegmentPosition sp(*event.seg2, sweepPoint, sweepSlope);
+				SLS.erase(sp);
+				it1 = it2 = it3 = it4 = SLS.upper_bound(sp);
+				if (!SLS.empty()) {
+					it1--;
+					it3--;
+				}
 			}
 			else {
-				intPoints.push_back(make_tuple(event.p, EQ.size(), EQ.size()));
-				SLS.erase(event.seg1);
-				SLS.insert(event.seg1);
+				auto i = event.seg1 - &segs[0];
+				auto j = event.seg2 - &segs[0];
+				intPoints.push_back(make_tuple(event.p, i, j));
+				sweepSlope = event.seg1->compareSlope(*event.seg2)
+					? *event.seg1 : *event.seg2;
+				SegmentPosition sp1(*event.seg1, sweepPoint, sweepSlope);
+				SegmentPosition sp2(*event.seg2, sweepPoint, sweepSlope);
+				SLS.erase(sp1);
+				SLS.erase(sp2);
+				SegmentPosition sp(event.seg1->compareSlope(*event.seg2)
+					? *event.seg2 : *event.seg1, sweepPoint, sweepSlope);
+				sweepSlope = sp.seg;
+				SLS.insert(sp1);
+				SLS.insert(sp2);
+				it1 = it2 = it3 = it4 = SLS.find(sp);
+				it1--;it1--;
+				it2--;
+				it4++;
 			}
+
+			if (it1 != SLS.end()
+				&& it2 != SLS.begin() && it2 != SLS.end()
+				&& segmentIntersect(it1->seg, it2->seg, intPoint))
+				EQ.push(Event(intPoint, &it1->seg, &it2->seg));
+			if (it3 != SLS.end()
+				&& it4 != SLS.begin() && it4 != SLS.end()
+				&& segmentIntersect(it3->seg, it4->seg, intPoint))
+				EQ.push(Event(intPoint, &it3->seg, &it4->seg));
+
+			EQ.pop();
 		}
 		
 		return intPoints;
@@ -151,42 +185,59 @@ namespace clk {
 	
 	bool Intersection::BOSweep::Event::operator<(const Event & that) const {
 		if (p.y != that.p.y) return p.y < that.p.y;
-		else if (p.x != that.p.x) return p.x > that.p.x;
 		else if (type != that.type) return type < that.type;
+		else if (p.x != that.p.x) return p.x > that.p.x;
 		else if (seg1 != that.seg1) return seg1 < that.seg1;
-		else if (seg2 != that.seg2) return seg2 < that.seg2;
-		else throw DupEventError();
+		else return seg2 < that.seg2;
 	}
 
-	void Intersection::BOSweep::EventQueue::push(value_type & val) {
+	void Intersection::BOSweep::EventQueue::push(Event & val) {
 		if (val.type == Event::intsect) {
-			if (val.p.y > sweepLine->y)
+			if (val.p.y > sweepPoint.y)
 				return;
-			else if (val.p.y == sweepLine->y && val.p.x < sweepLine->x)
+			else if (val.p.y == sweepPoint.y && val.p.x < sweepPoint.x)
+				return;
+			else if (val.p == sweepPoint
+				&& val.seg1->compareSlope(sweepSlope)
+				&& val.seg2->compareSlope(sweepSlope))
 				return;
 		}
-		try
-		{
-			priority_queue::push(val);
-		}
-		catch (const DupEventError&)
-		{
 
+		pq.insert(val);
+	}
+
+	long double Intersection::BOSweep::CompSegPos::_intX(const SegmentPosition &sp) {
+		auto &seg = sp.seg;
+		if (seg.isHorizontal()) {
+			if (sp.sweepPoint.x < seg.first.x) return seg.first.x;
+			else if (seg.second.x < sp.sweepPoint.x) return seg.second.x;
+			else return sp.sweepPoint.x;
 		}
-	}
-	
-	long double Intersection::BOSweep::CompSegPos::getIntX(const Segment & seg) {
-		if (seg.isHorizontal())
-			return seg.first.x;
 		else
-			return (seg.c - seg.b * sweepLine->y) / seg.a;
+			return (seg.c - seg.b * sp.sweepPoint.y) / seg.a;
 	}
 	
-	bool Intersection::BOSweep::CompSegPos::operator()(const Segment * a, const Segment * b) {
-		auto aIntX = getIntX(*a);
-		auto bIntX = getIntX(*b);
-		if (aIntX != bIntX) return aIntX < bIntX;
-		else return a < b;
-		// TODO: what if two segs intersect at the same point.
+	bool Intersection::BOSweep::CompSegPos::operator()(const SegmentPosition &a, const SegmentPosition &b) {
+		if ((a.sweepPoint != b.sweepPoint) || (a.sweepSlope != b.sweepSlope))
+			throw "Segments have different sweep condition.";
+
+		Point intPoint;
+		if (!segmentIntersect(a.seg, b.seg, intPoint)) {
+			return _intX(a) < _intX(b);
+		}
+		else if (a.seg.parallel(b.seg))
+			return &a.seg < &b.seg;
+		else if (intPoint.y != a.sweepPoint.y) {
+			return a.seg.compareSlope(b.seg) ^ (intPoint.y > a.sweepPoint.y);
+		}
+		else {
+			bool result = a.seg.compareSlope(b.seg);
+			if (intPoint.x != a.sweepPoint.x)
+				return (intPoint.x < a.sweepPoint.x) ^ result;
+			else if (a.sweepSlope.compareSlope(a.seg) == b.sweepSlope.compareSlope(b.seg))
+				return (!a.sweepSlope.compareSlope(a.seg)) ^ result;
+			else
+				return result;
+		}
 	}
 }
