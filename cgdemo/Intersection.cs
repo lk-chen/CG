@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,9 +14,10 @@ namespace cgdemo
     public partial class Intersection : Form
     {
         private List<PointF> segmentEndPoints = new List<PointF>();
-        private int pointDiameter = 4;
+        private int pointDiameter = 6;
         private Color pointColor = Color.Red;
         private Color segmentColor = Color.Black;
+        private Color sweepLineColor = Color.OrangeRed;
         private Color tagColor = Color.Purple;
         private BufferedGraphics[] bufferLayers;
         private const int margin = 12;
@@ -54,6 +56,10 @@ namespace cgdemo
             btnLoad.Top = margin;
             btnSave.Left = btnLoad.Right + margin;
             btnSave.Top = margin;
+            btnNext.Left = btnSave.Right + margin;
+            btnNext.Top = margin;
+            btnNext.Visible = false;
+            btnNext.Tag = false;
 
             setDynamicLayout();
         }
@@ -155,7 +161,19 @@ namespace cgdemo
         /// <param name="nexti"></param>
         /// <param name="nextj"></param>
         private void callbackShowAnimation(double y, int eventi, int eventj, int slopeIdx, List<UInt32> SLSIdx, int nexti, int nextj) {
-            Console.WriteLine("{0},{0}", y, SLSIdx.Count);
+            bufferLayers[(int)BufferLayerType.TSegments].Render(
+                bufferLayers[(int)BufferLayerType.TAnimation].Graphics);
+
+            using(var dashPen = new Pen(sweepLineColor))
+            {
+                var g = bufferLayers[(int)BufferLayerType.TAnimation].Graphics;
+                dashPen.DashStyle = DashStyle.Dash;
+                g.DrawLine(dashPen, new PointF(0, (float)y), new PointF(ClientSize.Width, (float)y));
+            }
+
+            bufferLayers[(int)BufferLayerType.TAnimation].Render();
+
+            MessageBox.Show("");
         }
 
         private void btnDraw_Click(object sender, EventArgs e)
@@ -201,6 +219,16 @@ namespace cgdemo
         private void Intersection_MouseMove(object sender, MouseEventArgs e)
         {
             lblCoord.Text = '(' + e.X.ToString() + ',' + e.Y.ToString() + ')';
+        }
+
+        private void ckbAnimation_CheckedChanged(object sender, EventArgs e)
+        {
+            btnNext.Visible = ckbAnimation.Checked;
+        }
+
+        private void btnNext_Click(object sender, EventArgs e)
+        {
+            btnNext.Tag = true;
         }
     }
 }

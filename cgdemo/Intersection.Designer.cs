@@ -33,6 +33,7 @@
             this.btnSave = new System.Windows.Forms.Button();
             this.lblCoord = new System.Windows.Forms.Label();
             this.ckbAnimation = new System.Windows.Forms.CheckBox();
+            this.btnNext = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnDraw
@@ -81,12 +82,24 @@
             this.ckbAnimation.TabIndex = 4;
             this.ckbAnimation.Text = "animation";
             this.ckbAnimation.UseVisualStyleBackColor = true;
+            this.ckbAnimation.CheckedChanged += new System.EventHandler(this.ckbAnimation_CheckedChanged);
+            // 
+            // btnNext
+            // 
+            this.btnNext.Location = new System.Drawing.Point(667, 28);
+            this.btnNext.Name = "btnNext";
+            this.btnNext.Size = new System.Drawing.Size(90, 96);
+            this.btnNext.TabIndex = 5;
+            this.btnNext.Text = "next";
+            this.btnNext.UseVisualStyleBackColor = true;
+            this.btnNext.Click += new System.EventHandler(this.btnNext_Click);
             // 
             // Intersection
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1340, 697);
+            this.Controls.Add(this.btnNext);
             this.Controls.Add(this.ckbAnimation);
             this.Controls.Add(this.lblCoord);
             this.Controls.Add(this.btnSave);
@@ -111,5 +124,6 @@
         private System.Windows.Forms.Button btnSave;
         private System.Windows.Forms.Label lblCoord;
         private System.Windows.Forms.CheckBox ckbAnimation;
+        private System.Windows.Forms.Button btnNext;
     }
 }
