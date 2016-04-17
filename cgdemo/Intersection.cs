@@ -37,11 +37,15 @@ namespace cgdemo
             g.Dispose();
         }
 
-        public delegate void CallbackType();
+        private void callbackDoNothing(double y, int eventi, int eventj, int slopeIdx, List<UInt32> SLSIdx, int nexti, int nextj) { }
+
+        private void callbackShowMessage(double y, int eventi, int eventj, int slopeIdx, List<UInt32> SLSIdx, int nexti, int nextj) {
+            Console.WriteLine("{0},{0}", y, SLSIdx.Count);
+        }
 
         private void btnDraw_Click(object sender, EventArgs e)
         {
-            wrapper.Intersection.CSCallbackType cb = () => MessageBox.Show("Call from C#");
+            wrapper.Intersection.CSCallbackType cb = callbackDoNothing;
             var intPointTuples = wrapper.Intersection.getIntersection(segmentEndPoints, cb);
 
             PointF[] intPoints = new PointF[intPointTuples.Count];

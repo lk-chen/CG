@@ -67,86 +67,6 @@ namespace clk {
 			return false;
 	}
 
-	vector<tuple<Point, size_t, size_t>> Intersection::BOSweep::compute(const vector<Segment> &segs, const CallbackType &callback) {
-		vector<tuple<Point, size_t, size_t>> intPoints;
-		if (segs.size() < 2) return intPoints;
-		Point sweepPoint;
-		Segment sweepSlope(segs[0].first, segs[1].second);
-		SweepLineStatus SLS;
-		EventQueue EQ(sweepPoint,sweepSlope);
-		Point intPoint;
-
-		for (auto &seg : segs) {
-			EQ.push(Event(seg.first, &seg, nullptr));
-			EQ.push(Event(seg.second, nullptr, &seg));
-		}
-
-		while (!EQ.empty())
-		{
-			auto event = EQ.top();
-			decltype(SLS.begin()) it1, it2, it3, it4;
-			sweepPoint = event.p;
-			callback();
-
-			if (event.type == Event::start) {
-				sweepSlope = *event.seg1;
-				SegmentPosition sp(*event.seg1, sweepPoint, sweepSlope);
-				SLS.insert(sp);
-				it1 = it2 = it3 = it4 = SLS.find(sp);
-				it1--;
-				it4++;
-			}
-			else if (event.type == Event::end) {
-				sweepSlope = *event.seg2;
-				SegmentPosition sp(*event.seg2, sweepPoint, sweepSlope);
-				SLS.erase(sp);
-				it1 = it2 = it3 = it4 = SLS.upper_bound(sp);
-				if (!SLS.empty()) {
-					it1--;
-					it3--;
-				}
-			}
-			else {
-				auto i = event.seg1 - &segs[0];
-				auto j = event.seg2 - &segs[0];
-				intPoints.push_back(make_tuple(event.p, i, j));
-				sweepSlope = event.seg1->compareSlope(*event.seg2)
-					? *event.seg1 : *event.seg2;
-				SegmentPosition sp1(*event.seg1, sweepPoint, sweepSlope);
-				SegmentPosition sp2(*event.seg2, sweepPoint, sweepSlope);
-				SLS.erase(sp1);
-				SLS.erase(sp2);
-				SegmentPosition sp(event.seg1->compareSlope(*event.seg2)
-					? *event.seg2 : *event.seg1, sweepPoint, sweepSlope);
-				sweepSlope = sp.seg;
-				SLS.insert(sp1);
-				SLS.insert(sp2);
-				it1 = it2 = it3 = it4 = SLS.find(sp);
-				it1--;it1--;
-				it2--;
-				it4++;
-			}
-
-			if (it1 != SLS.end()
-				&& it2 != SLS.begin() && it2 != SLS.end()
-				&& segmentIntersect(it1->seg, it2->seg, intPoint))
-				EQ.push(Event(intPoint, &it1->seg, &it2->seg));
-			if (it3 != SLS.end()
-				&& it4 != SLS.begin() && it4 != SLS.end()
-				&& segmentIntersect(it3->seg, it4->seg, intPoint))
-				EQ.push(Event(intPoint, &it3->seg, &it4->seg));
-
-			EQ.pop();
-		}
-		
-		return intPoints;
-	}
-
-	vector<tuple<Point, size_t, size_t>> Intersection::BOSweep(const std::vector<Segment>& segs, const CallbackType &callback)
-	{
-		return BOSweep::compute(segs, callback);
-	}
-
 	vector<tuple<Point, size_t, size_t>> Intersection::BruteForce(const vector<Segment> &segs) {
 		vector<tuple<Point, size_t, size_t>> intPoints;
 		Point p(0, 0);
@@ -161,7 +81,7 @@ namespace clk {
 		return intPoints;
 	}
 	
-	Intersection::BOSweep::Event::Event(const Point & xp, decltype(seg1) xseg1, decltype(seg2) xseg2) :
+	Intersection::BOSweepClass::Event::Event(const Point & xp, decltype(seg1) xseg1, decltype(seg2) xseg2) :
 		p(xp), seg1(xseg1), seg2(xseg2) {
 		if (seg1 && seg2) {
 			type = intsect;
@@ -175,7 +95,7 @@ namespace clk {
 			throw "Both seg1 and seg2 of Event are NULL.";
 	}
 
-	Intersection::BOSweep::Event & Intersection::BOSweep::Event::operator=(const Event & e) {
+	Intersection::BOSweepClass::Event & Intersection::BOSweepClass::Event::operator=(const Event & e) {
 		p = e.p;
 		seg1 = e.seg1;
 		seg2 = e.seg2;
@@ -184,7 +104,7 @@ namespace clk {
 		return *this;
 	}
 	
-	bool Intersection::BOSweep::Event::operator<(const Event & that) const {
+	bool Intersection::BOSweepClass::Event::operator<(const Event & that) const {
 		if (p.y != that.p.y) return p.y < that.p.y;
 		else if (type != that.type) return type < that.type;
 		else if (p.x != that.p.x) return p.x > that.p.x;
@@ -192,7 +112,7 @@ namespace clk {
 		else return seg2 < that.seg2;
 	}
 
-	void Intersection::BOSweep::EventQueue::push(Event & val) {
+	void Intersection::BOSweepClass::EventQueue::push(Event & val) {
 		if (val.type == Event::intsect) {
 			if (val.p.y > sweepPoint.y)
 				return;
@@ -207,7 +127,7 @@ namespace clk {
 		pq.insert(val);
 	}
 
-	long double Intersection::BOSweep::CompSegPos::_intX(const SegmentPosition &sp) {
+	long double Intersection::BOSweepClass::CompSegPos::_intX(const SegmentPosition &sp) {
 		auto &seg = sp.seg;
 		if (seg.isHorizontal()) {
 			if (sp.sweepPoint.x < seg.first.x) return seg.first.x;
@@ -218,7 +138,7 @@ namespace clk {
 			return (seg.c - seg.b * sp.sweepPoint.y) / seg.a;
 	}
 	
-	bool Intersection::BOSweep::CompSegPos::operator()(const SegmentPosition &a, const SegmentPosition &b) {
+	bool Intersection::BOSweepClass::CompSegPos::operator()(const SegmentPosition &a, const SegmentPosition &b) {
 		if ((a.sweepPoint != b.sweepPoint) || (a.sweepSlope != b.sweepSlope))
 			throw "Segments have different sweep condition.";
 
