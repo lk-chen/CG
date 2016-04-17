@@ -4,40 +4,31 @@
 
 using std::vector;
 using std::get;
+using clk::Segment;
+using clk::Point;
+using System::Collections::Generic::List;
+using System::Drawing::PointF;
+using System::UInt32;
+typedef System::Tuple<PointF, UInt32, UInt32> IntPointTuple;
 
 namespace wrapper {
-	vector<clk::Segment> Intersection::getSegsFromCoord(
-		array<long double>^ X, array<long double>^ Y)
+	List<IntPointTuple^> ^Intersection::getIntersection(
+		List<PointF> ^endPoints)
 	{
-		auto sz = X->Length;
-		vector<clk::Segment> segs;
+		vector<Segment> segs;
+		for (int i = 0; i < endPoints->Count; i+=2)
+			segs.push_back(Segment(
+				Point(endPoints[i].X,endPoints[i].Y),
+				Point(endPoints[i + 1].X, endPoints[i + 1].Y)));
 
-		if (sz != Y->Length)
-			throw "X and Y have different length.";
-		if (sz % 2 != 0)
-			throw "Size of X is not even number.";
-
-		for (int i = 0; i < sz / 2; i++)
-		{
-			clk::Point p(X[2 * i], Y[2 * i]);
-			clk::Point q(X[2 * i + 1], Y[2 * i + 1]);
-			segs.push_back(clk::Segment(p, q));
-		}
-
-		return segs;
-	}
-
-	array<long double> ^Intersection::getIntersection(
-		array<long double>^ X, array<long double>^ Y)
-	{
-		auto segs = getSegsFromCoord(X, Y);
 		auto intPoints = clk::Intersection::BOSweep(segs);
 
-		auto res = gcnew array<long double>(intPoints.size() * 2);
+		auto res = gcnew List<IntPointTuple^>;
 		for (size_t i = 0; i < intPoints.size(); i++)
 		{
-			res[2 * i] = get<0>(intPoints[i]).x;
-			res[2 * i + 1] = get<0>(intPoints[i]).y;
+			auto point = get<0>(intPoints[i]);
+			res->Add(gcnew IntPointTuple(PointF(point.x, point.y),
+				get<1>(intPoints[i]), get<2>(intPoints[i])));
 		}
 
 		return res;

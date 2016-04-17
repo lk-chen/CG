@@ -39,22 +39,11 @@ namespace cgdemo
 
         private void btnDraw_Click(object sender, EventArgs e)
         {
-            double[] X = new double[segmentEndPoints.Count];
-            double[] Y = new double[segmentEndPoints.Count];
-            for (int i = 0;i < segmentEndPoints.Count; i++)
-            {
-                X[i] = segmentEndPoints[i].X;
-                Y[i] = segmentEndPoints[i].Y;
-            }
+            var intPointTuples = wrapper.Intersection.getIntersection(segmentEndPoints);
 
-            var intPointCoord = wrapper.Intersection.getIntersection(X, Y);
-
-            PointF[] intPoints = new PointF[intPointCoord.Length / 2];
-            for (int i = 0;i < intPointCoord.Length / 2; i++)
-            {
-                intPoints[i].X = (float)intPointCoord[2 * i];
-                intPoints[i].Y = (float)intPointCoord[2 * i + 1];
-            }
+            PointF[] intPoints = new PointF[intPointTuples.Count / 2];
+            for (int i = 0; i < intPointTuples.Count / 2; i++)
+                intPoints[i] = intPointTuples[i].Item1;
 
             drawIntPoint(intPoints);
         }

@@ -1,15 +1,12 @@
 #pragma once
 #include "Intersection.h"
-
-using namespace System;
+#using <System.Drawing.dll>
 
 namespace wrapper {
 	public ref class Intersection {
 	private:
-		static std::vector<clk::Segment> getSegsFromCoord(
-			array<long double>^, array<long double>^);
 	public:
-		static array<long double> ^getIntersection(
-			array<long double>^, array<long double>^);
+		static System::Collections::Generic::List<System::Tuple<System::Drawing::PointF, System::UInt32, System::UInt32>^> ^
+			getIntersection(System::Collections::Generic::List<System::Drawing::PointF> ^);
 	};
 }
