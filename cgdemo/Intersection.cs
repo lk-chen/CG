@@ -16,8 +16,9 @@ namespace cgdemo
         private List<PointF> segmentEndPoints = new List<PointF>();
         private int pointDiameter = 6;
         private Color pointColor = Color.Red;
-        private Color segmentColor = Color.Black;
+        private Color segmentColor = Color.DarkGray;
         private Color sweepLineColor = Color.OrangeRed;
+        private Color eventSegColor = Color.Blue;
         private Color tagColor = Color.Purple;
         private BufferedGraphics[] bufferLayers;
         private const int margin = 12;
@@ -60,6 +61,8 @@ namespace cgdemo
             btnNext.Top = margin;
             btnNext.Visible = false;
             btnNext.Tag = false;
+            lblAnimation.Visible = ckbAnimation.Checked;
+            lblAnimation.TextAlign = ContentAlignment.MiddleRight;
 
             setDynamicLayout();
         }
@@ -74,6 +77,8 @@ namespace cgdemo
 
             ckbAnimation.Top = margin;
             ckbAnimation.Left = ClientSize.Width - ckbAnimation.Width - margin;
+            lblAnimation.Left = ClientSize.Width - lblAnimation.Width - margin;
+            lblAnimation.Top = ckbAnimation.Bottom + margin;
         }
 
         /// <summary>
@@ -160,15 +165,38 @@ namespace cgdemo
         /// <param name="SLSIdx"></param>
         /// <param name="nexti"></param>
         /// <param name="nextj"></param>
-        private void callbackShowAnimation(double y, int eventi, int eventj, int slopeIdx, List<UInt32> SLSIdx, int nexti, int nextj) {
+        private void callbackShowAnimation(double y, int eventi, int eventj, int slopeIdx, List<UInt32> SLSIdx, int nexti, int nextj)
+        {
             bufferLayers[(int)BufferLayerType.TSegments].Render(
                 bufferLayers[(int)BufferLayerType.TAnimation].Graphics);
 
-            using(var dashPen = new Pen(sweepLineColor))
+            using (var dashPen = new Pen(sweepLineColor))
             {
                 var g = bufferLayers[(int)BufferLayerType.TAnimation].Graphics;
                 dashPen.DashStyle = DashStyle.Dash;
                 g.DrawLine(dashPen, new PointF(0, (float)y), new PointF(ClientSize.Width, (float)y));
+            }
+            using (var pen = new Pen(eventSegColor))
+            {
+                var g = bufferLayers[(int)BufferLayerType.TAnimation].Graphics;
+                if (eventi >= 0) g.DrawLine(pen, segmentEndPoints[eventi * 2], segmentEndPoints[eventi * 2 + 1]);
+                if (eventj >= 0) g.DrawLine(pen, segmentEndPoints[eventj * 2], segmentEndPoints[eventj * 2 + 1]);
+            }
+            
+            lblAnimation.Text = "slope: " + slopeIdx.ToString() + '\n';
+            lblAnimation.Text += "SLS: " + string.Join(", ", SLSIdx) + '\n';
+            lblAnimation.Text += "next event: ";
+            if (nexti < 0)
+                if (nextj < 0)
+                    lblAnimation.Text += "[end]";
+                else
+                    lblAnimation.Text += "pop " + nextj.ToString();
+            else
+            {
+                if (nextj < 0)
+                    lblAnimation.Text += "push " + nexti.ToString();
+                else
+                    lblAnimation.Text += "intersect (" + nexti.ToString() + ',' + nextj.ToString() + ')';
             }
 
             bufferLayers[(int)BufferLayerType.TAnimation].Render();
@@ -201,12 +229,12 @@ namespace cgdemo
             var p1 = segmentEndPoints.Last();
             segmentEndPoints.Add(new PointF(e.X, e.Y));
             var p2 = segmentEndPoints.Last();
+            var tag = segmentEndPoints.Count / 2 - 1;
 
-            bufferLayers[(int)BufferLayerType.TSegments].Graphics
-                .DrawLine(new Pen(segmentColor), p2, p1);
-            bufferLayers[(int)BufferLayerType.TSegments].Graphics
-                .DrawString((segmentEndPoints.Count / 2).ToString(), SystemFonts.DefaultFont,
-                new SolidBrush(tagColor), new PointF((p1.X + p2.X) / 2, (p1.Y + p2.Y) / 2));
+            var g = bufferLayers[(int)BufferLayerType.TSegments].Graphics;
+            g.DrawLine(new Pen(segmentColor), p2, p1);
+            g.DrawString(tag.ToString(), SystemFonts.DefaultFont,
+            new SolidBrush(tagColor), new PointF((p1.X + p2.X) / 2, (p1.Y + p2.Y) / 2));
 
             drawIntPoint(new PointF[0]);
         }
@@ -224,11 +252,17 @@ namespace cgdemo
         private void ckbAnimation_CheckedChanged(object sender, EventArgs e)
         {
             btnNext.Visible = ckbAnimation.Checked;
+            lblAnimation.Visible = ckbAnimation.Checked;
         }
 
         private void btnNext_Click(object sender, EventArgs e)
         {
             btnNext.Tag = true;
+        }
+
+        private void lblAnimation_Resize(object sender, EventArgs e)
+        {
+            lblAnimation.Left = ClientRectangle.Width - lblAnimation.Width - margin;
         }
     }
 }
