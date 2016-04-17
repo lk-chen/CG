@@ -4,10 +4,15 @@
 #include <set>
 #include <vector>
 #include <tuple>
+#include <functional>
 
 namespace clk {
 	/// <summary> Intersection <summary>
 	class DLLEXP Intersection {
+	public:
+		/// <summary> Call back funtion type </summary>
+		typedef void(*CallbackType)();
+
 	private:
 		/// <summary> Detect if a point is on another segment </summary>
 		/// <param name="p"> Point </param>
@@ -87,7 +92,7 @@ namespace clk {
 			public:
 			};
 		public:
-			static std::vector<std::tuple<Point, size_t, size_t>> compute(const std::vector<Segment> &segs);
+			static std::vector<std::tuple<Point, size_t, size_t>> compute(const std::vector<Segment> &segs, const CallbackType &callback);
 		};
 	public:
 		/// <summary> Bentley-Ottmann Sweep algorithm </summary>
@@ -95,7 +100,7 @@ namespace clk {
 		/// <param name="strict"> If strict is set to be true, only
 		/// strictly intersections are counted. </param>
 		/// <remarks> This implementation uses a top-down sweep line </remarks>
-		static std::vector<std::tuple<Point, size_t, size_t>> BOSweep(const std::vector<Segment> &segs);
+		static std::vector<std::tuple<Point, size_t, size_t>> BOSweep(const std::vector<Segment> &segs, const CallbackType &callback);
 
 		/// <summary> Brute-Force method </summary>
 		/// <param name="segs"> Input segments to be detected </param>

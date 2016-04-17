@@ -138,11 +138,20 @@
     <ClCompile Include="wIntersection.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <COMReference Include="{215d64d2-031c-33c7-96e3-61794cd1ee61}">
+      <Guid>215d64d2-031c-33c7-96e3-61794cd1ee61</Guid>
+      <VersionMajor>2</VersionMajor>
+      <VersionMinor>4</VersionMinor>
+    </COMReference>
     <COMReference Include="{d37e2a3e-8545-3a39-9f4f-31827c9124ab}">
       <Guid>d37e2a3e-8545-3a39-9f4f-31827c9124ab</Guid>
       <VersionMajor>2</VersionMajor>
       <VersionMinor>4</VersionMinor>
     </COMReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

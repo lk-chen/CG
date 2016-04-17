@@ -9,11 +9,13 @@ using clk::Point;
 using System::Collections::Generic::List;
 using System::Drawing::PointF;
 using System::UInt32;
+using System::IntPtr;
+using System::Runtime::InteropServices::Marshal;
 typedef System::Tuple<PointF, UInt32, UInt32> IntPointTuple;
 
 namespace wrapper {
 	List<IntPointTuple^> ^Intersection::getIntersection(
-		List<PointF> ^endPoints)
+		List<PointF> ^endPoints, CSCallbackType^ csCallback)
 	{
 		vector<Segment> segs;
 		for (int i = 0; i < endPoints->Count; i+=2)
@@ -21,7 +23,9 @@ namespace wrapper {
 				Point(endPoints[i].X,endPoints[i].Y),
 				Point(endPoints[i + 1].X, endPoints[i + 1].Y)));
 
-		auto intPoints = clk::Intersection::BOSweep(segs);
+		IntPtr csCbptr = Marshal::GetFunctionPointerForDelegate(csCallback);
+		clk::Intersection::CallbackType callback = static_cast<clk::Intersection::CallbackType>(csCbptr.ToPointer());
+		auto intPoints = clk::Intersection::BOSweep(segs, callback);
 
 		auto res = gcnew List<IntPointTuple^>;
 		for (size_t i = 0; i < intPoints.size(); i++)

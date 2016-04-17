@@ -1,14 +1,14 @@
 #include "Intersection.h"
 #include <vector>
 #include <set>
-#include <iostream>
-#include <string>
 #include <tuple>
 #include <algorithm>
+#include <functional>
 
 using std::vector;
 using std::set;
 using std::tuple;
+using std::function;
 using std::make_tuple;
 using std::swap;
 using std::min;
@@ -67,7 +67,7 @@ namespace clk {
 			return false;
 	}
 
-	vector<tuple<Point, size_t, size_t>> Intersection::BOSweep::compute(const vector<Segment> &segs) {
+	vector<tuple<Point, size_t, size_t>> Intersection::BOSweep::compute(const vector<Segment> &segs, const CallbackType &callback) {
 		vector<tuple<Point, size_t, size_t>> intPoints;
 		if (segs.size() < 2) return intPoints;
 		Point sweepPoint;
@@ -86,6 +86,7 @@ namespace clk {
 			auto event = EQ.top();
 			decltype(SLS.begin()) it1, it2, it3, it4;
 			sweepPoint = event.p;
+			callback();
 
 			if (event.type == Event::start) {
 				sweepSlope = *event.seg1;
@@ -141,9 +142,9 @@ namespace clk {
 		return intPoints;
 	}
 
-	vector<tuple<Point, size_t, size_t>> Intersection::BOSweep(const std::vector<Segment>& segs)
+	vector<tuple<Point, size_t, size_t>> Intersection::BOSweep(const std::vector<Segment>& segs, const CallbackType &callback)
 	{
-		return BOSweep::compute(segs);
+		return BOSweep::compute(segs, callback);
 	}
 
 	vector<tuple<Point, size_t, size_t>> Intersection::BruteForce(const vector<Segment> &segs) {

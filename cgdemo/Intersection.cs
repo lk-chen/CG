@@ -37,12 +37,15 @@ namespace cgdemo
             g.Dispose();
         }
 
+        public delegate void CallbackType();
+
         private void btnDraw_Click(object sender, EventArgs e)
         {
-            var intPointTuples = wrapper.Intersection.getIntersection(segmentEndPoints);
+            wrapper.Intersection.CSCallbackType cb = () => MessageBox.Show("Call from C#");
+            var intPointTuples = wrapper.Intersection.getIntersection(segmentEndPoints, cb);
 
-            PointF[] intPoints = new PointF[intPointTuples.Count / 2];
-            for (int i = 0; i < intPointTuples.Count / 2; i++)
+            PointF[] intPoints = new PointF[intPointTuples.Count];
+            for (int i = 0; i < intPoints.Length; i++)
                 intPoints[i] = intPointTuples[i].Item1;
 
             drawIntPoint(intPoints);
