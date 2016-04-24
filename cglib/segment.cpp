@@ -12,21 +12,9 @@ namespace clk {
 		else if (p.y == q.y && p.x > q.x)
 			std::swap(first, second);
 
-		if (p.x == q.x) {
-			_b = 0;
-			_a = 1;
-			_c = p.x;
-		}
-		else if (p.y == q.y) {
-			_a = 0;
-			_b = 1;
-			_c = p.y;
-		}
-		else {
-			_a = p.y - q.y;
-			_b = q.x - p.x;
-			_c = a*p.x + b*p.y;
-		}
+		_a = first.y - second.y;
+		_b = second.x - first.x;
+		_c = a*first.x + b*first.y;
 	}
 
 	Segment::~Segment() {}
@@ -55,14 +43,8 @@ namespace clk {
 		return *this;
 	}
 
-	bool Segment::compareSlope(const Segment &that) const {
-		bool flip = (a*that.a != 0) ? (a*that.a < 0) : (a + that.a < 0);
-		bool result = b*that.a > a*that.b;
-		return flip^result;
-	}
-
-	bool Segment::parallel(const Segment & that) const
-	{
-		return compareSlope(that) == that.compareSlope(*this);
-	}
+	bool Segment::compareSlope(const Segment & that) const {
+		if (that.a == 0) return false;
+		else return b*that.a > a*that.b;
+	};
 }

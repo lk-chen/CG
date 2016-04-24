@@ -146,7 +146,7 @@ namespace clk {
 		if (!segmentIntersect(a.seg, b.seg, intPoint)) {
 			return _intX(a) < _intX(b);
 		}
-		else if (a.seg.parallel(b.seg))
+		else if (!a.seg.compareSlope(b.seg) && !b.seg.compareSlope(a.seg))
 			return &a.seg < &b.seg;
 		else if (intPoint.y != a.sweepPoint.y) {
 			return a.seg.compareSlope(b.seg) ^ (intPoint.y > a.sweepPoint.y);

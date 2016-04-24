@@ -10,17 +10,6 @@ namespace clk {
 	/// <summary> Intersection <summary>
 	class DLLEXP Intersection {
 	public:
-		/// <summary> Call back funtion type </summary>
-		typedef void(*CallbackType)(long double, int, int, int, const std::vector<size_t>&, int, int);
-
-	private:
-		/// <summary> Detect if a point is on another segment </summary>
-		/// <param name="p"> Point </param>
-		/// <param name="seg"> Segment </param>
-		/// <returns> Returns true if point p lies on segment seg or
-		/// overlap with endpoints of seg </returns>
-		static bool pointOnSegment(const Point &p, const Segment &seg);
-
 		/// <summary> Detect potential intersection of two line segments </summary>
 		/// <param name="seg1"> Line segment 1 </param>
 		/// <param name="seg2"> Line segment 2 </param>
@@ -31,6 +20,14 @@ namespace clk {
 		/// <returns> Returns true if there is intersection </returns>
 		/// <remarks> If there are many intersection points, p can be any of them </remarks>
 		static bool segmentIntersect(const Segment& seg1, const Segment& seg2, Point& p);
+
+	private:
+		/// <summary> Detect if a point is on another segment </summary>
+		/// <param name="p"> Point </param>
+		/// <param name="seg"> Segment </param>
+		/// <returns> Returns true if point p lies on segment seg or
+		/// overlap with endpoints of seg </returns>
+		static bool pointOnSegment(const Point &p, const Segment &seg);
 
 		class BOSweepClass {
 		private:
@@ -142,16 +139,16 @@ namespace clk {
 						SegmentPosition sp2(*event.seg2, sweepPoint, sweepSlope);
 						SLS.erase(sp1);
 						SLS.erase(sp2);
-						SegmentPosition sp(event.seg1->compareSlope(*event.seg2)
-							? *event.seg2 : *event.seg1, sweepPoint, sweepSlope);
+						slopeIdx = (event.seg1->compareSlope(*event.seg2)
+							? event.seg2 : event.seg1) - &segs[0];
+						SegmentPosition sp(segs[slopeIdx], sweepPoint, sweepSlope);
 						sweepSlope = sp.seg;
-						slopeIdx = &sp.seg - &segs[0];
 						SLS.insert(sp1);
 						SLS.insert(sp2);
 						it1 = it2 = it3 = it4 = SLS.find(sp);
-						it1--;it1--;
-						it2--;
-						it4++;
+						it1--;
+						it3++;
+						it4++;it4++;
 					}
 
 					if (it1 != SLS.end()

@@ -35,10 +35,11 @@ namespace clk {
 		/// <remarks> use vector to represent direction, then
 		/// (-1, 0) &lt; (-1, 1) &lt; (0, 1) &lt; (1, 1) </remarks>
 		bool compareSlope(const Segment &that) const;
-
-		/// <summary> If parallel with another segment </summary>
-		bool parallel(const Segment &that) const;
 	private:
 		long double _a, _b, _c;
 	};
+
+
+	//bool Segment::compareSlope(const Segment &that) const 
+
 }
