@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include <CppUnitTest.h>
 #include "Intersection.h"
+#include "pointTest.cpp"
 
 using namespace Microsoft::VisualStudio::CppUnitTestFramework;
 using namespace clk;
@@ -24,6 +25,6 @@ namespace cglibUnitTest
 			Assert::AreEqual(p1, p2);
 		}
 
-		TEST_METHOD()
+		//TEST_METHOD()
 	};
 }

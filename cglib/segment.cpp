@@ -3,18 +3,20 @@
 
 using std::pair;
 using std::numeric_limits;
+using std::swap;
 
 namespace clk {
 	Segment::Segment(const Point &p, const Point &q)
-		: pair(p, q), a(_a), b(_b), c(_c) {
+		: endpoints(p, q), a(_a), b(_b), c(_c)
+		, first(endpoints.first), second(endpoints.second) {
 		if (p.y < q.y)
-			std::swap(first, second);
+			swap(endpoints.first, endpoints.second);
 		else if (p.y == q.y && p.x > q.x)
-			std::swap(first, second);
+			swap(endpoints.first, endpoints.second);
 
-		_a = first.y - second.y;
-		_b = second.x - first.x;
-		_c = a*first.x + b*first.y;
+		_a = endpoints.first.y - endpoints.second.y;
+		_b = endpoints.second.x - endpoints.first.x;
+		_c = a*endpoints.first.x + b*endpoints.first.y;
 	}
 
 	Segment::~Segment() {}
@@ -34,8 +36,8 @@ namespace clk {
 	}
 
 	Segment & Segment::operator=(const Segment & that) {
-		first = that.first;
-		second = that.second;
+		endpoints.first = that.first;
+		endpoints.second = that.second;
 		_a = that.a;
 		_b = that.b;
 		_c = that.c;

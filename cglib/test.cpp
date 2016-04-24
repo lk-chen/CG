@@ -1,10 +1,10 @@
 #include "Intersection.h"
+#include <iostream>
 
 using namespace std;
 using namespace clk;
 
-void callback(long double y, int eventi, int eventj,
-	int slopeIdx, const vector<size_t>& SLSidx, int nexti, int nextj) { }
+void callback(long double y, const vector<size_t> eventIdx, const vector<size_t>& SLSIdx) { }
 
 int main() {
 	vector<Segment> segs;

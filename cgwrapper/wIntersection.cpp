@@ -1,7 +1,9 @@
 #include "wIntersection.h"
 #include "Intersection.h"
 #include <tuple>
+#include <fstream>
 
+using std::ofstream;
 using std::vector;
 using std::get;
 using clk::Segment;
@@ -17,11 +19,12 @@ namespace wrapper {
 	List<IntPointTuple^> ^Intersection::getIntersection(
 		List<PointF> ^endPoints, CSCallbackType^ cb)
 	{
-		vector<Segment> segs;
-		for (int i = 0; i < endPoints->Count; i+=2)
-			segs.push_back(Segment(
-				Point(endPoints[i].X,endPoints[i].Y),
-				Point(endPoints[i + 1].X, endPoints[i + 1].Y)));
+		vector<Segment> segs(endPoints->Count / 2);
+		for (int i = 0; i < endPoints->Count; i += 2) {
+			segs[i / 2] = Segment(
+				Point(endPoints[i].X, endPoints[i].Y),
+				Point(endPoints[i + 1].X, endPoints[i + 1].Y));
+		}
 
 		csCallback = cb;
 		auto intPoints = clk::Intersection::BOSweep(segs, wCallback);
@@ -37,10 +40,13 @@ namespace wrapper {
 		return res;
 	}
 
-	void Intersection::wCallback(long double y, int eventi, int eventj, int slopeIdx, const vector<size_t>& SLSidx, int nexti, int nextj) {
+	void Intersection::wCallback(long double y, const vector<size_t>& eventidx, const vector<size_t>& SLSidx) {
 		auto SLSIdx = gcnew List<UInt32>;
+		auto eventIdx = gcnew List<UInt32>;
 		for (auto idx : SLSidx)
 			SLSIdx->Add(idx);
-		csCallback(y, eventi, eventj, slopeIdx, SLSIdx, nexti, nextj);
+		for (auto idx : eventidx)
+			eventIdx->Add(idx);
+		csCallback(y, eventIdx, SLSIdx);
 	}
 }

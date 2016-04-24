@@ -153,7 +153,7 @@ namespace cgdemo
         /// <param name="SLSIdx"></param>
         /// <param name="nexti"></param>
         /// <param name="nextj"></param>
-        private void callbackDoNothing(double y, int eventi, int eventj, int slopeIdx, List<UInt32> SLSIdx, int nexti, int nextj) { }
+        private void callbackDoNothing(double y, List<UInt32> eventIdx, List<UInt32> SLSIdx) { }
 
         /// <summary>
         /// Call back function to show animation.
@@ -165,7 +165,7 @@ namespace cgdemo
         /// <param name="SLSIdx"></param>
         /// <param name="nexti"></param>
         /// <param name="nextj"></param>
-        private void callbackShowAnimation(double y, int eventi, int eventj, int slopeIdx, List<UInt32> SLSIdx, int nexti, int nextj)
+        private void callbackShowAnimation(double y, List<UInt32> eventIdx, List<UInt32> SLSIdx)
         {
             bufferLayers[(int)BufferLayerType.TSegments].Render(
                 bufferLayers[(int)BufferLayerType.TAnimation].Graphics);
@@ -179,25 +179,11 @@ namespace cgdemo
             using (var pen = new Pen(eventSegColor))
             {
                 var g = bufferLayers[(int)BufferLayerType.TAnimation].Graphics;
-                if (eventi >= 0) g.DrawLine(pen, segmentEndPoints[eventi * 2], segmentEndPoints[eventi * 2 + 1]);
-                if (eventj >= 0) g.DrawLine(pen, segmentEndPoints[eventj * 2], segmentEndPoints[eventj * 2 + 1]);
+                foreach (int i in eventIdx)
+                    g.DrawLine(pen, segmentEndPoints[i * 2], segmentEndPoints[i * 2 + 1]);
             }
             
-            lblAnimation.Text = "slope: " + slopeIdx.ToString() + '\n';
-            lblAnimation.Text += "SLS: " + string.Join(", ", SLSIdx) + '\n';
-            lblAnimation.Text += "next event: ";
-            if (nexti < 0)
-                if (nextj < 0)
-                    lblAnimation.Text += "[end]";
-                else
-                    lblAnimation.Text += "pop " + nextj.ToString();
-            else
-            {
-                if (nextj < 0)
-                    lblAnimation.Text += "push " + nexti.ToString();
-                else
-                    lblAnimation.Text += "intersect (" + nexti.ToString() + ',' + nextj.ToString() + ')';
-            }
+            lblAnimation.Text = "SLS: " + string.Join(", ", SLSIdx) + '\n';
 
             bufferLayers[(int)BufferLayerType.TAnimation].Render();
 
