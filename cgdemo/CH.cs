@@ -1,17 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-
-using wrapper;
 
 namespace cgdemo
 {
@@ -67,20 +60,21 @@ namespace cgdemo
             bufferLayers[(int)BufferLayerType.TBackground]
                 .Render(bufferLayers[(int)BufferLayerType.TPoints].Graphics);
 
-            var brush = new SolidBrush(pointColor);
-            var tagBrush = new SolidBrush(Color.Black);
-            for (int i = 0; i < points.Count(); i++)
-            {
-                var p = points[i];
-                bufferLayers[(int)BufferLayerType.TPoints].Graphics
-                    .FillEllipse(brush, p.X - pointDiameter / 2,
-                    p.Y - pointDiameter / 2, pointDiameter, pointDiameter);
-                bufferLayers[(int)BufferLayerType.TPoints].Graphics
-                    .DrawString(i.ToString(), SystemFonts.DefaultFont,
-                    tagBrush, p);
+            using (var brush = new SolidBrush(pointColor)) {
+                using (var tagBrush = new SolidBrush(Color.Black))
+                {
+                    for (int i = 0; i < points.Count(); i++)
+                    {
+                        var p = points[i];
+                        bufferLayers[(int)BufferLayerType.TPoints].Graphics
+                            .FillEllipse(brush, p.X - pointDiameter / 2,
+                            p.Y - pointDiameter / 2, pointDiameter, pointDiameter);
+                        bufferLayers[(int)BufferLayerType.TPoints].Graphics
+                            .DrawString(i.ToString(), SystemFonts.DefaultFont,
+                            tagBrush, p);
+                    }
+                }
             }
-            brush.Dispose();
-            tagBrush.Dispose();
 
             bufferLayers[(int)BufferLayerType.TPoints]
                 .Render(bufferLayers[(int)BufferLayerType.THull].Graphics);
@@ -93,11 +87,12 @@ namespace cgdemo
         /// </summary>
         private void drawPoint(PointF p)
         {
-            var brush = new SolidBrush(pointColor);
-            bufferLayers[(int)BufferLayerType.TPoints].Graphics
-                .FillEllipse(brush, p.X - pointDiameter / 2,
-                p.Y - pointDiameter / 2, pointDiameter, pointDiameter);
-            brush.Dispose();
+            using (var brush = new SolidBrush(pointColor))
+            {
+                bufferLayers[(int)BufferLayerType.TPoints].Graphics
+                    .FillEllipse(brush, p.X - pointDiameter / 2,
+                    p.Y - pointDiameter / 2, pointDiameter, pointDiameter);
+            }
 
             bufferLayers[(int)BufferLayerType.TPoints].Graphics
                 .DrawString((points.Count - 1).ToString(), SystemFonts.DefaultFont
@@ -122,16 +117,16 @@ namespace cgdemo
                     .Render(CreateGraphics());
                 return;
             }
-            var hull = new PointF[h + 1];
+            var hull = new PointF[h];
             for (int i = 0; i < h; i++)
                 hull[i] = points[(int)ch[i]];
-            hull[h] = hull[0];
 
-            var pen = new Pen(lineColor);
-            bufferLayers[(int)BufferLayerType.THull].Graphics
-                .DrawLines(pen, hull);
-            bufferLayers[(int)BufferLayerType.THull].Render();
-            pen.Dispose();
+            using (var pen = new Pen(lineColor))
+            {
+                bufferLayers[(int)BufferLayerType.THull].Graphics
+                    .DrawPolygon(pen, hull);
+                bufferLayers[(int)BufferLayerType.THull].Render();
+            }
         }
 
         /// <summary>

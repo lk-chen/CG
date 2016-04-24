@@ -18,9 +18,15 @@
     <ClInclude Include="wCH.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="wIntersection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="wCH.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wIntersection.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

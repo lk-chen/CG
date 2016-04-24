@@ -16,9 +16,9 @@ namespace clk {
 			< 0;
 	}
 
-	Point::Point(long double x, long double y) :_x(x), _y(y) { }
+	Point::Point(long double x, long double y) :_x(x), _y(y), x(_x), y(_y) { }
 
-	Point::Point(const Point & p) : _x(p._x), _y(p._y) { }
+	Point::Point(const Point & p) : _x(p._x), _y(p._y), x(_x), y(_y) { }
 
 	Point::~Point() {}
 
@@ -28,14 +28,26 @@ namespace clk {
 			&& (p._y == this->_y);
 	}
 
-	long double Point::X() const
+	bool Point::operator!=(const Point &p) const
 	{
-		return _x;
+		return !(operator==(p));
 	}
 
-	long double Point::Y() const
+	Point& Point::operator=(const Point &p)
 	{
-		return _y;
+		_x = p._x;
+		_y = p._y;
+		return *this;
+	}
+
+	Point Point::operator-(const Point &p) const
+	{
+		return Point(_x - p._x, _y - p._y);
+	}
+
+	Point Point::operator+(const Point &p) const
+	{
+		return Point(_x + p._x, _y + p._y);
 	}
 
 	bool Point::toLeft(const Point &p, const Point &q) const
@@ -54,7 +66,7 @@ namespace clk {
 		else return q.between(p, *this);
 	}
 
-	std::string Point::toString()
+	std::string Point::toString() const
 	{
 		std::ostringstream sstr;
 		sstr << '(' << _x << ',' << _y << ')';

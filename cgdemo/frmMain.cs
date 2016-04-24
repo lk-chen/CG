@@ -28,20 +28,32 @@ namespace cgdemo
             var btnHeight = 40;
 
             Button[] btns = new Button[9];
-
-            btns[0] = new Button();
+            for (int i = 0; i < btns.Length; i++)
+            {
+                btns[i] = new Button();
+                btns[i].Size= new Size(btnWidth, btnHeight);
+                btns[i].Left = (ClientRectangle.Width - 3 * btnWidth) / 2
+                    - margin + (i % 3) * (btnWidth + margin);
+                btns[i].Top = (ClientRectangle.Height - 3 * btnHeight) / 2
+                    - margin + (i / 3) * (btnHeight + margin);
+                btns[i].Visible = false;
+                
+                Controls.Add(btns[i]);
+            }
+            
             btns[0].Text = "Convex Hull";
-            btns[0].Size = new Size(btnWidth, btnHeight);
-            btns[0].Left = (ClientRectangle.Width - 3 * btnWidth) / 2 - margin;
-            btns[0].Top = (ClientRectangle.Height - 3 * btnHeight) / 2 - margin;
             btns[0].Click += delegate (object _sender, EventArgs _e)
-             {
-                 (new CH()).Show();
-             };
+            {
+                (new CH()).Show();
+            };
             btns[0].Visible = true;
 
-            foreach (var btn in btns)
-                Controls.Add(btn);
+            btns[1].Text = "Intersection";
+            btns[1].Click += delegate (object _sender, EventArgs _e)
+            {
+                (new Intersection()).Show();
+            };
+            btns[1].Visible = true;
         }
     }
 }

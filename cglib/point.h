@@ -6,10 +6,11 @@
 namespace clk {
 	/// <summary> Point in 2-D </summary>
 	class DLLEXP Point {
-	private:
+	protected:
 		/// <summary> X and Y coordinates </summary>
 		long double _x, _y;
 
+	private:
 		/// <summary>
 		/// Help the toLeft test  </summary>
 		/// <param name="p">
@@ -35,7 +36,7 @@ namespace clk {
 		bool between(const Point &p, const Point &q) const;
 	public:
 		/// <summary> Explicity constructor </summary>
-		Point(long double x, long double y);
+		Point(long double x = 0, long double y = 0);
 
 		/// <summary> Copy constructor </summary>
 		Point(const Point& p);
@@ -43,17 +44,26 @@ namespace clk {
 		/// <summary> Destructor </summary>
 		~Point();
 
+		/// <summary> readonly x, y </summary>
+		const long double &x, &y;
+
 		/// <summary> Equal operator </summary>
 		/// <returns>
 		/// Return true if two points have the same
 		/// X and Y coordinates </returns>
 		bool operator==(const Point &p) const;
 
-		/// <summary> get X coordinate </summary>
-		long double X() const;
+		/// <summary> Not equal </summary>
+		bool operator!=(const Point &p) const;
 
-		/// <summary> get Y coordinate </summary>
-		long double Y() const;
+		/// <summary> Assignment </summary>
+		Point& operator=(const Point &p);
+
+		/// <summary> Subtract </summary>
+		Point operator-(const Point &p) const;
+
+		/// <summary> Add </summary>
+		Point operator+(const Point &p) const;
 
 		/// <summary> To Left Test </summary>
 		/// <param name="p"> Start of the vector </param>
@@ -64,13 +74,14 @@ namespace clk {
 		/// of vector (p,q), or
 		/// 2) current instance lies on the extension of
 		/// vector (p,q), excluding p and q. </returns>
+		/// <remarks> If p and q overlap, returns false </remarks>
 		bool toLeft(const Point &p, const Point &q) const;
 
 		/// <summary> Mirror image of toLeft </summary>
 		bool toRight(const Point &p, const Point &q) const;
 
 		/// <summary> Convert x y coordinate to string </summary>
-		std::string toString();
+		std::string toString() const;
 	};
 
 	/// <summary> Non-repeated point </summary>

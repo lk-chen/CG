@@ -279,3 +279,5 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+/CG.VC.db
+/CG.VC.VC.opendb

@@ -49,10 +49,10 @@ namespace clk {
 
 		struct {
 			bool operator()(const Point &p, const Point &q) {
-				if (p.X() < q.X()) return true;
-				else if (p.X() > q.X()) return false;
+				if (p.x < q.x) return true;
+				else if (p.x > q.x) return false;
 				else {
-					if (p.Y() < q.Y()) return true;
+					if (p.y < q.y) return true;
 					else return false;
 				}
 			}
@@ -84,11 +84,11 @@ namespace clk {
 	{
 		struct {
 			bool operator()(const DistinctPoint &p, const DistinctPoint &q) {
-				if (p.Y() < q.Y()) return true;
-				else if (p.Y() > q.Y()) return false;
+				if (p.y < q.y) return true;
+				else if (p.y > q.y) return false;
 				else {
-					if (p.X() < q.X()) return true;
-					else if (p.X() > q.X()) return false;
+					if (p.x < q.x) return true;
+					else if (p.x > q.x) return false;
 					else {
 						throw "Repeated points";
 					}
