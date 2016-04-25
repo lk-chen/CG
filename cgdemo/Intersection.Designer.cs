@@ -55,6 +55,7 @@
             this.btnLoad.TabIndex = 1;
             this.btnLoad.Text = "Load...";
             this.btnLoad.UseVisualStyleBackColor = true;
+            this.btnLoad.Click += new System.EventHandler(this.btnLoad_Click);
             // 
             // btnSave
             // 
@@ -64,6 +65,7 @@
             this.btnSave.TabIndex = 2;
             this.btnSave.Text = "Save...";
             this.btnSave.UseVisualStyleBackColor = true;
+            this.btnSave.Click += new System.EventHandler(this.btnSave_Click);
             // 
             // lblCoord
             // 

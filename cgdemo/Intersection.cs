@@ -4,8 +4,10 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -228,6 +230,7 @@ namespace cgdemo
         private void Intersection_Resize(object sender, EventArgs e)
         {
             setDynamicLayout();
+            initBufferLayers();
         }
 
         private void Intersection_MouseMove(object sender, MouseEventArgs e)
@@ -249,6 +252,78 @@ namespace cgdemo
         private void lblAnimation_Resize(object sender, EventArgs e)
         {
             lblAnimation.Left = ClientRectangle.Width - lblAnimation.Width - margin;
+        }
+
+        private void btnLoad_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Text Files (.txt)|*.txt";
+            var openFileOK = openFileDialog.ShowDialog();
+
+            if (openFileOK == DialogResult.OK)
+            {
+                var fileStream = openFileDialog.OpenFile();
+                StreamReader reader = null;
+                var temp = new List<PointF>();
+                try
+                {
+                    reader = new StreamReader(fileStream);
+                    var line = reader.ReadLine();
+                    var N = uint.Parse(line);
+                    Regex spaceSpliter = new Regex(@"\s+");
+                    for (int i = 0; i < N; i++)
+                    {
+                        line = reader.ReadLine();
+                        var tokens = spaceSpliter.Split(line);
+                        var x = float.Parse(tokens[0]);
+                        var y = float.Parse(tokens[1]);
+                        temp.Add(new PointF(x, y));
+                    }
+
+                    segmentEndPoints = temp;
+                    reDrawSegments();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.ToString());
+                }
+                finally
+                {
+                    if (reader != null)
+                        reader.Close();
+                    fileStream.Close();
+                }
+            }
+        }
+
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            openFileDialog.Filter = "Text Files (.txt)|*.txt";
+            var openFileOK = openFileDialog.ShowDialog();
+
+            if (openFileOK == DialogResult.OK)
+            {
+                StreamWriter writer = null;
+                try
+                {
+                    writer = new StreamWriter(openFileDialog.FileName, false);
+                    writer.WriteLine(segmentEndPoints.Count);
+                    foreach (var point in segmentEndPoints)
+                    {
+                        writer.WriteLine(point.X.ToString() + ' ' + point.Y.ToString());
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.ToString());
+                }
+                finally
+                {
+                    if (writer != null)
+                        writer.Close();
+                }
+            }
         }
     }
 }
