@@ -35,6 +35,7 @@
             this.ckbAnimation = new System.Windows.Forms.CheckBox();
             this.btnNext = new System.Windows.Forms.Button();
             this.lblAnimation = new System.Windows.Forms.Label();
+            this.btnPrev = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // btnDraw
@@ -79,7 +80,7 @@
             // ckbAnimation
             // 
             this.ckbAnimation.AutoSize = true;
-            this.ckbAnimation.Location = new System.Drawing.Point(852, 40);
+            this.ckbAnimation.Location = new System.Drawing.Point(1166, 40);
             this.ckbAnimation.Name = "ckbAnimation";
             this.ckbAnimation.Size = new System.Drawing.Size(137, 29);
             this.ckbAnimation.TabIndex = 4;
@@ -89,7 +90,7 @@
             // 
             // btnNext
             // 
-            this.btnNext.Location = new System.Drawing.Point(667, 28);
+            this.btnNext.Location = new System.Drawing.Point(812, 28);
             this.btnNext.Name = "btnNext";
             this.btnNext.Size = new System.Drawing.Size(90, 96);
             this.btnNext.TabIndex = 5;
@@ -106,11 +107,22 @@
             this.lblAnimation.TabIndex = 6;
             this.lblAnimation.Resize += new System.EventHandler(this.lblAnimation_Resize);
             // 
+            // btnPrev
+            // 
+            this.btnPrev.Location = new System.Drawing.Point(677, 60);
+            this.btnPrev.Name = "btnPrev";
+            this.btnPrev.Size = new System.Drawing.Size(96, 76);
+            this.btnPrev.TabIndex = 7;
+            this.btnPrev.Text = "previous";
+            this.btnPrev.UseVisualStyleBackColor = true;
+            this.btnPrev.Click += new System.EventHandler(this.btnPrev_Click);
+            // 
             // Intersection
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1340, 697);
+            this.Controls.Add(this.btnPrev);
             this.Controls.Add(this.lblAnimation);
             this.Controls.Add(this.btnNext);
             this.Controls.Add(this.ckbAnimation);
@@ -139,5 +151,6 @@
         private System.Windows.Forms.CheckBox ckbAnimation;
         private System.Windows.Forms.Button btnNext;
         private System.Windows.Forms.Label lblAnimation;
+        private System.Windows.Forms.Button btnPrev;
     }
 }

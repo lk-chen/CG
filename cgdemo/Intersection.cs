@@ -34,6 +34,62 @@ namespace cgdemo
             TAnimation,
         };
 
+        private class Animation
+        {
+            private List<double> ys;
+            private List<List<UInt32>> eventIndices;
+            private List<List<UInt32>> SLSIndices;
+            public int step;
+            public int frameNum { get { return _frameNum; } }
+            private int _frameNum;
+            private Intersection form;
+            public PointF[] intPoints;
+
+            public Animation (Intersection fm) {
+                step = _frameNum = 0;
+                form = fm;
+                ys = new List<double>();
+                eventIndices = new List<List<uint>>();
+                SLSIndices = new List<List<uint>>();
+            }
+
+            public void push(double y, List<UInt32> eventIdx, List<UInt32> SLSIdx)
+            {
+                _frameNum++;
+                ys.Add(y);
+                eventIndices.Add(eventIdx);
+                SLSIndices.Add(SLSIdx);
+            }
+
+            public void flush()
+            {
+                if (end()) return;
+                form.bufferLayers[(int)BufferLayerType.TSegments].Render(
+                    form.bufferLayers[(int)BufferLayerType.TAnimation].Graphics);
+
+                using (var dashPen = new Pen(form.sweepLineColor))
+                {
+                    var g = form.bufferLayers[(int)BufferLayerType.TAnimation].Graphics;
+                    dashPen.DashStyle = DashStyle.Dash;
+                    g.DrawLine(dashPen, new PointF(0, (float)ys[step]), new PointF(form.ClientSize.Width, (float)ys[step]));
+                }
+                using (var pen = new Pen(form.eventSegColor))
+                {
+                    var g = form.bufferLayers[(int)BufferLayerType.TAnimation].Graphics;
+                    foreach (int i in eventIndices[step])
+                        g.DrawLine(pen, form.segmentEndPoints[i * 2], form.segmentEndPoints[i * 2 + 1]);
+                }
+
+                form.lblAnimation.Text = "SLS: " + string.Join(", ", SLSIndices[step]) + '\n';
+                
+                form.bufferLayers[(int)BufferLayerType.TAnimation].Render();
+            }
+            
+            public bool end() { return step >= frameNum || step < 0; }
+        }
+
+        Animation animation;
+
         public Intersection()
         {
             InitializeComponent();
@@ -59,10 +115,11 @@ namespace cgdemo
             btnLoad.Top = margin;
             btnSave.Left = btnLoad.Right + margin;
             btnSave.Top = margin;
-            btnNext.Left = btnSave.Right + margin;
+            btnPrev.Left = btnSave.Right + margin;
+            btnPrev.Top = margin;
+            btnNext.Left = btnPrev.Right + margin;
             btnNext.Top = margin;
-            btnNext.Visible = false;
-            btnNext.Tag = false;
+            btnNext.Visible=btnPrev.Visible = false;
             lblAnimation.Visible = ckbAnimation.Checked;
             lblAnimation.TextAlign = ContentAlignment.MiddleRight;
 
@@ -144,19 +201,7 @@ namespace cgdemo
 
             bufferLayers[(int)BufferLayerType.TIntersections].Render();
         }
-
-        /// <summary>
-        /// Call back function when user does not want animation.
-        /// </summary>
-        /// <param name="y"></param>
-        /// <param name="eventi"></param>
-        /// <param name="eventj"></param>
-        /// <param name="slopeIdx"></param>
-        /// <param name="SLSIdx"></param>
-        /// <param name="nexti"></param>
-        /// <param name="nextj"></param>
-        private void callbackDoNothing(double y, List<UInt32> eventIdx, List<UInt32> SLSIdx) { }
-
+        
         /// <summary>
         /// Call back function to show animation.
         /// </summary>
@@ -169,42 +214,21 @@ namespace cgdemo
         /// <param name="nextj"></param>
         private void callbackShowAnimation(double y, List<UInt32> eventIdx, List<UInt32> SLSIdx)
         {
-            bufferLayers[(int)BufferLayerType.TSegments].Render(
-                bufferLayers[(int)BufferLayerType.TAnimation].Graphics);
-
-            using (var dashPen = new Pen(sweepLineColor))
-            {
-                var g = bufferLayers[(int)BufferLayerType.TAnimation].Graphics;
-                dashPen.DashStyle = DashStyle.Dash;
-                g.DrawLine(dashPen, new PointF(0, (float)y), new PointF(ClientSize.Width, (float)y));
-            }
-            using (var pen = new Pen(eventSegColor))
-            {
-                var g = bufferLayers[(int)BufferLayerType.TAnimation].Graphics;
-                foreach (int i in eventIdx)
-                    g.DrawLine(pen, segmentEndPoints[i * 2], segmentEndPoints[i * 2 + 1]);
-            }
-            
-            lblAnimation.Text = "SLS: " + string.Join(", ", SLSIdx) + '\n';
-
-            bufferLayers[(int)BufferLayerType.TAnimation].Render();
-
-            MessageBox.Show("");
+            animation.push(y, eventIdx, SLSIdx);
         }
 
         private void btnDraw_Click(object sender, EventArgs e)
         {
-            List<Tuple<PointF, uint, uint>> intPointTuples;
-            if (!ckbAnimation.Checked)
-                intPointTuples = wrapper.Intersection.getIntersection(segmentEndPoints, callbackDoNothing);
-            else
-                intPointTuples = wrapper.Intersection.getIntersection(segmentEndPoints, callbackShowAnimation);
+            animation = new Animation(this);
+            btnNext.Enabled = btnPrev.Enabled = true;
+            var intPointTuples = wrapper.Intersection.getIntersection(segmentEndPoints, callbackShowAnimation);
 
-            PointF[] intPoints = new PointF[intPointTuples.Count];
-            for (int i = 0; i < intPoints.Length; i++)
-                intPoints[i] = intPointTuples[i].Item1;
+            List<PointF> intPoints = new List<PointF>();
+            foreach (var tuple in intPointTuples)
+                intPoints.Add(tuple.Item1);
 
-            drawIntPoint(intPoints);
+            animation.intPoints = intPoints.ToArray();
+            drawIntPoint(animation.intPoints);
         }
 
         private void Intersection_MouseDown(object sender, MouseEventArgs e)
@@ -240,13 +264,8 @@ namespace cgdemo
 
         private void ckbAnimation_CheckedChanged(object sender, EventArgs e)
         {
-            btnNext.Visible = ckbAnimation.Checked;
+            btnPrev.Visible = btnNext.Visible = ckbAnimation.Checked;
             lblAnimation.Visible = ckbAnimation.Checked;
-        }
-
-        private void btnNext_Click(object sender, EventArgs e)
-        {
-            btnNext.Tag = true;
         }
 
         private void lblAnimation_Resize(object sender, EventArgs e)
@@ -323,6 +342,37 @@ namespace cgdemo
                     if (writer != null)
                         writer.Close();
                 }
+            }
+        }
+
+        private void btnNext_Click(object sender, EventArgs e)
+        {
+            if (animation.step < 0) animation.step = 0;
+            if (!animation.end())
+            {
+                animation.flush();
+                btnPrev.Enabled = true;
+                animation.step++;
+            }
+            else
+            {
+                drawIntPoint(animation.intPoints);
+                btnNext.Enabled = false;
+            }
+        }
+
+        private void btnPrev_Click(object sender, EventArgs e)
+        {
+            animation.step--;
+            if (!animation.end())
+            {
+                animation.flush();
+                btnNext.Enabled = true;
+            }
+            else
+            {
+                bufferLayers[(int)BufferLayerType.TSegments].Render();
+                btnPrev.Enabled = false;
             }
         }
     }
