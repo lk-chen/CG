@@ -36,6 +36,7 @@
             this.btnNext = new System.Windows.Forms.Button();
             this.lblAnimation = new System.Windows.Forms.Label();
             this.btnPrev = new System.Windows.Forms.Button();
+            this.ckbPolygon = new System.Windows.Forms.CheckBox();
             this.SuspendLayout();
             // 
             // btnDraw
@@ -80,7 +81,7 @@
             // ckbAnimation
             // 
             this.ckbAnimation.AutoSize = true;
-            this.ckbAnimation.Location = new System.Drawing.Point(1166, 40);
+            this.ckbAnimation.Location = new System.Drawing.Point(1159, 78);
             this.ckbAnimation.Name = "ckbAnimation";
             this.ckbAnimation.Size = new System.Drawing.Size(137, 29);
             this.ckbAnimation.TabIndex = 4;
@@ -117,11 +118,22 @@
             this.btnPrev.UseVisualStyleBackColor = true;
             this.btnPrev.Click += new System.EventHandler(this.btnPrev_Click);
             // 
+            // ckbPolygon
+            // 
+            this.ckbPolygon.AutoSize = true;
+            this.ckbPolygon.Location = new System.Drawing.Point(1146, 28);
+            this.ckbPolygon.Name = "ckbPolygon";
+            this.ckbPolygon.Size = new System.Drawing.Size(166, 29);
+            this.ckbPolygon.TabIndex = 8;
+            this.ckbPolygon.Text = "self intersect";
+            this.ckbPolygon.UseVisualStyleBackColor = true;
+            // 
             // Intersection
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1340, 697);
+            this.Controls.Add(this.ckbPolygon);
             this.Controls.Add(this.btnPrev);
             this.Controls.Add(this.lblAnimation);
             this.Controls.Add(this.btnNext);
@@ -152,5 +164,6 @@
         private System.Windows.Forms.Button btnNext;
         private System.Windows.Forms.Label lblAnimation;
         private System.Windows.Forms.Button btnPrev;
+        private System.Windows.Forms.CheckBox ckbPolygon;
     }
 }

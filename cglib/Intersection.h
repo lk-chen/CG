@@ -49,7 +49,7 @@ namespace clk {
 					}
 				};
 				struct HigherThenLeft {
-					bool operator()(const Point& a, const Point& b) {
+					bool operator()(const Point& a, const Point& b) const {
 						if (a.y != b.y) return a.y < b.y;
 						else return a.x > b.x;
 					}
@@ -86,11 +86,11 @@ namespace clk {
 			template<class _Pr>
 			static std::vector<std::tuple<Point, size_t, size_t>> compute(
 				const std::vector<Segment> &segs, _Pr callback) {
-				std::vector<std::tuple<Point, size_t, size_t>> intPoints;
+				vector<tuple<Point, size_t, size_t>> intPoints;
 				if (segs.size() == 0) return intPoints;
 				Point sweepPoint;
 				bool reverse = false;
-				std::set<SegmentPosition> SLS;
+				set<SegmentPosition> SLS;
 				EventQueue EQ(sweepPoint);
 				Point intPoint;
 
@@ -104,18 +104,16 @@ namespace clk {
 				{
 					const auto &event = EQ.top();
 					decltype(SLS.begin()) it1, it2;
-					std::vector<const Segment*> upper, lower, contain;
+					vector<const Segment*> upper, lower, contain;
 					sweepPoint = event.first;
 					auto sl = *event.second.begin();
 					auto sr = *event.second.rbegin();
 					reverse = false;
 
-					for (auto hline = event.second.begin(); hline != event.second.end(); hline++) {
-						if (!(*hline)->isHorizontal())
-							continue;
-						else {
+					for (auto hline = event.second.begin(); hline != event.second.end(); ++hline) {
+						if ((*hline)->isHorizontal()) {
 							for (auto it = SLS.upper_bound(SegmentPosition(**hline, sweepPoint, reverse));
-								it != SLS.end(); it++) {
+								it != SLS.end(); ++it) {
 								if (segmentIntersect(**hline, it->seg, intPoint))
 									EQ.push(intPoint, *hline, &it->seg);
 								else break;
@@ -123,25 +121,24 @@ namespace clk {
 						}
 					}
 
-					for (auto seg : event.second) {
-						SLS.erase(SegmentPosition(*seg, sweepPoint, reverse));
-						if (seg->first == sweepPoint) lower.push_back(seg);
-						else if (seg->second == sweepPoint) upper.push_back(seg);
-						else contain.push_back(seg);
+					for (auto pseg : event.second) {
+						SLS.erase(SegmentPosition(*pseg, sweepPoint, reverse));
+						if (pseg->first == sweepPoint) lower.push_back(pseg);
+						else if (pseg->second == sweepPoint) upper.push_back(pseg);
+						else contain.push_back(pseg);
 					}
 
 					reverse = true;
-					for (auto seg : lower) SLS.insert(SegmentPosition(*seg, sweepPoint, reverse));
-					for (auto seg : contain) SLS.insert(SegmentPosition(*seg, sweepPoint, reverse));
+					for (auto pseg : lower) SLS.insert(SegmentPosition(*pseg, sweepPoint, reverse));
+					for (auto pseg : contain) SLS.insert(SegmentPosition(*pseg, sweepPoint, reverse));
 
 					it2 = SLS.lower_bound(SegmentPosition(*sr, sweepPoint, reverse));
-
 					if (it2 != SLS.begin() && it2 != SLS.end()) {
-						it1 = it2; it1--;
-						for (auto r = it2; r != SLS.end(); r++) {
-							if (r->seg.compareSlope(it2->seg) || it2->seg.compareSlope(r->seg))break;
-							for (auto l = it1; l != SLS.end(); l--) {
-								if (l->seg.compareSlope(it1->seg) || it1->seg.compareSlope(l->seg))break;
+						it1 = it2; --it1;
+						for (auto r = it2; r != SLS.end(); ++r) {
+							if (r->seg.compareSlope(it2->seg) || it2->seg.compareSlope(r->seg)) break;
+							for (auto l = it1; l != SLS.end(); --l) {
+								if (l->seg.compareSlope(it1->seg) || it1->seg.compareSlope(l->seg)) break;
 								if (segmentIntersect(l->seg, r->seg, intPoint))
 									EQ.push(intPoint, &l->seg, &r->seg);
 							}
@@ -149,28 +146,28 @@ namespace clk {
 					}
 
 					it2 = SLS.upper_bound(SegmentPosition(*sl, sweepPoint, reverse));
-
 					if (it2 != SLS.begin() && it2 != SLS.end()) {
-						it1 = it2; it1--;
-						for (auto r = it2; r != SLS.end(); r++) {
-							if (r->seg.compareSlope(it2->seg) || it2->seg.compareSlope(r->seg))break;
-							for (auto l = it1; l != SLS.end(); l--) {
-								if (l->seg.compareSlope(it1->seg) || it1->seg.compareSlope(l->seg))break;
+						it1 = it2; --it1;
+						for (auto r = it2; r != SLS.end(); ++r) {
+							if (r->seg.compareSlope(it2->seg) || it2->seg.compareSlope(r->seg)) break;
+							for (auto l = it1; l != SLS.end(); --l) {
+								if (l->seg.compareSlope(it1->seg) || it1->seg.compareSlope(l->seg)) break;
 								if (segmentIntersect(l->seg, r->seg, intPoint))
 									EQ.push(intPoint, &l->seg, &r->seg);
 							}
 						}
 					}
 
-					for (auto it1 = event.second.begin(); it1 != event.second.end(); it1++)
-						for (auto it2 = it1; it2 != event.second.end(); it2++)
-							if (it2 == it1) continue;
-							else {
-								segmentIntersect(**it1, **it2, intPoint);
-								if (intPoint == event.first)
-									intPoints.push_back(std::make_tuple(event.first,
-										*it1 - &segs[0], *it2 - &segs[0]));
-							}
+					for (auto it1 = event.second.begin(); it1 != event.second.end(); ++it1)
+						for (auto it2 = it1; ; ) {
+							++it2;
+							if (it2 == event.second.end()) break;
+
+							segmentIntersect(**it1, **it2, intPoint);
+							if (intPoint == event.first)
+								intPoints.push_back(make_tuple(event.first,
+									*it1 - &segs[0], *it2 - &segs[0]));
+						}
 
 					std::vector<size_t> SLSIdx, eventIdx;
 					for (auto it : SLS) SLSIdx.push_back(&it.seg - &segs[0]);
@@ -182,6 +179,9 @@ namespace clk {
 
 				return intPoints;
 			}
+
+			static std::vector<std::tuple<Point, size_t, size_t>> compute(
+				const std::vector<Segment> &segs);
 		};
 	public:
 		/// <summary> Bentley-Ottmann Sweep algorithm </summary>
@@ -191,6 +191,7 @@ namespace clk {
 		template<class _Pr>
 		static std::vector<std::tuple<Point, size_t, size_t>> BOSweep(
 			const std::vector<Segment> &segs, _Pr callback) {
+			//return Intersection::BOSweepClass::compute(segs, callback);
 			return Intersection::BOSweepClass::compute(segs, callback);
 		}
 
@@ -198,7 +199,7 @@ namespace clk {
 		/// <param name="segs"> Input segments to be detected </param>
 		static std::vector<std::tuple<Point, size_t, size_t>> BOSweep(
 			const std::vector<Segment> &segs) {
-			return Intersection::BOSweepClass::compute(segs, nullCallback);
+			return Intersection::BOSweepClass::compute(segs);
 		}
 
 		/// <summary> Brute-Force method </summary>

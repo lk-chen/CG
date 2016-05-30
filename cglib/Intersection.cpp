@@ -84,7 +84,7 @@ namespace clk {
 	void Intersection::BOSweepClass::EventQueue::push(const Point & xp, const Segment * seg1, const Segment * seg2) {
 		if (pq.key_comp()(sweepPoint, xp)) return;
 		pq[xp].insert(seg1);
-		if (seg2 != nullptr) pq[xp].insert(seg2);
+		if (seg2) pq[xp].insert(seg2);
 	}
 
 	long double Intersection::BOSweepClass::SegmentPosition::_intX() const {
@@ -123,5 +123,96 @@ namespace clk {
 			else
 				return a.seg.compareSlope(b.seg);
 		}
+	}
+
+	vector<tuple<Point, size_t, size_t>> Intersection::BOSweepClass::compute(const vector<Segment>& segs)
+	{
+		vector<tuple<Point, size_t, size_t>> intPoints;
+		if (segs.size() == 0) return intPoints;
+		Point sweepPoint;
+		bool reverse = false;
+		set<SegmentPosition> SLS;
+		EventQueue EQ(sweepPoint);
+		Point intPoint;
+
+		for (const auto &seg : segs) {
+			sweepPoint = seg.first;
+			EQ.push(seg.first, &seg);
+			EQ.push(seg.second, &seg);
+		}
+
+		while (!EQ.empty())
+		{
+			const auto &event = EQ.top();
+			decltype(SLS.begin()) it1, it2;
+			vector<const Segment*> upper, lower, contain;
+			sweepPoint = event.first;
+			auto sl = *event.second.begin();
+			auto sr = *event.second.rbegin();
+			reverse = false;
+
+			for (auto hline = event.second.begin(); hline != event.second.end(); ++hline) {
+				if ((*hline)->isHorizontal()) {
+					for (auto it = SLS.upper_bound(SegmentPosition(**hline, sweepPoint, reverse));
+						it != SLS.end(); ++it) {
+						if (segmentIntersect(**hline, it->seg, intPoint))
+							EQ.push(intPoint, *hline, &it->seg);
+						else break;
+					}
+				}
+			}
+
+			for (auto pseg : event.second) {
+				SLS.erase(SegmentPosition(*pseg, sweepPoint, reverse));
+				if (pseg->first == sweepPoint) lower.push_back(pseg);
+				else if (pseg->second == sweepPoint) upper.push_back(pseg);
+				else contain.push_back(pseg);
+			}
+
+			reverse = true;
+			for (auto pseg : lower) SLS.insert(SegmentPosition(*pseg, sweepPoint, reverse));
+			for (auto pseg : contain) SLS.insert(SegmentPosition(*pseg, sweepPoint, reverse));
+
+			it2 = SLS.lower_bound(SegmentPosition(*sr, sweepPoint, reverse));
+			if (it2 != SLS.begin() && it2 != SLS.end()) {
+				it1 = it2; --it1;
+				for (auto r = it2; r != SLS.end(); ++r) {
+					if (r->seg.compareSlope(it2->seg) || it2->seg.compareSlope(r->seg)) break;
+					for (auto l = it1; l != SLS.end(); --l) {
+						if (l->seg.compareSlope(it1->seg) || it1->seg.compareSlope(l->seg)) break;
+						if (segmentIntersect(l->seg, r->seg, intPoint))
+							EQ.push(intPoint, &l->seg, &r->seg);
+					}
+				}
+			}
+
+			it2 = SLS.upper_bound(SegmentPosition(*sl, sweepPoint, reverse));
+			if (it2 != SLS.begin() && it2 != SLS.end()) {
+				it1 = it2; --it1;
+				for (auto r = it2; r != SLS.end(); ++r) {
+					if (r->seg.compareSlope(it2->seg) || it2->seg.compareSlope(r->seg)) break;
+					for (auto l = it1; l != SLS.end(); --l) {
+						if (l->seg.compareSlope(it1->seg) || it1->seg.compareSlope(l->seg)) break;
+						if (segmentIntersect(l->seg, r->seg, intPoint))
+							EQ.push(intPoint, &l->seg, &r->seg);
+					}
+				}
+			}
+
+			for (auto it1 = event.second.begin(); it1 != event.second.end(); ++it1)
+				for (auto it2 = it1; ; ) {
+					++it2;
+					if (it2 == event.second.end()) break;
+
+					segmentIntersect(**it1, **it2, intPoint);
+					if (intPoint == event.first)
+						intPoints.push_back(make_tuple(event.first,
+							*it1 - &segs[0], *it2 - &segs[0]));
+				}
+
+			EQ.pop();
+		}
+
+		return intPoints;
 	}
 }

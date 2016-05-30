@@ -16,7 +16,8 @@ namespace cgdemo
     public partial class Intersection : Form
     {
         private List<PointF> segmentEndPoints = new List<PointF>();
-        private int pointDiameter = 6;
+        private int pointDiameter = 8;
+        private float segWidth = 1.0f;
         private Color pointColor = Color.Red;
         private Color segmentColor = Color.DarkGray;
         private Color sweepLineColor = Color.OrangeRed;
@@ -73,7 +74,7 @@ namespace cgdemo
                     dashPen.DashStyle = DashStyle.Dash;
                     g.DrawLine(dashPen, new PointF(0, (float)ys[step]), new PointF(form.ClientSize.Width, (float)ys[step]));
                 }
-                using (var pen = new Pen(form.eventSegColor))
+                using (var pen = new Pen(form.eventSegColor, form.segWidth + 1.0f))
                 {
                     var g = form.bufferLayers[(int)BufferLayerType.TAnimation].Graphics;
                     foreach (int i in eventIndices[step])
@@ -134,7 +135,9 @@ namespace cgdemo
             lblCoord.Left = margin;
             lblCoord.Top = ClientSize.Height - lblCoord.Height - margin;
 
-            ckbAnimation.Top = margin;
+            ckbPolygon.Top = margin;
+            ckbPolygon.Left = ClientSize.Width - ckbPolygon.Width - margin;
+            ckbAnimation.Top = ckbPolygon.Bottom + margin;
             ckbAnimation.Left = ClientSize.Width - ckbAnimation.Width - margin;
             lblAnimation.Left = ClientSize.Width - lblAnimation.Width - margin;
             lblAnimation.Top = ckbAnimation.Bottom + margin;
@@ -164,7 +167,7 @@ namespace cgdemo
             bufferLayers[(int)BufferLayerType.TBackground].Render(
                 bufferLayers[(int)BufferLayerType.TSegments].Graphics);
 
-            using (var pen = new Pen(segmentColor))
+            using (var pen = new Pen(segmentColor, segWidth))
                 using(var tagBrush = new SolidBrush(tagColor))
             {
                 for (int i = 0; i < segmentEndPoints.Count; i += 2)
@@ -226,6 +229,17 @@ namespace cgdemo
             List<PointF> intPoints = new List<PointF>();
             foreach (var tuple in intPointTuples)
                 intPoints.Add(tuple.Item1);
+
+            if (ckbPolygon.Checked)
+            {
+                intPoints = new List<PointF>();
+                foreach (var tuple in intPointTuples)
+                    if (Math.Abs((int)tuple.Item2 - (int)tuple.Item3) == 1)
+                        continue;
+                    else if (Math.Abs((int)tuple.Item2 - (int)tuple.Item3)
+                            != segmentEndPoints.Count / 2 - 1)
+                        intPoints.Add(tuple.Item1);
+            }
 
             animation.intPoints = intPoints.ToArray();
             drawIntPoint(animation.intPoints);
