@@ -134,10 +134,8 @@ namespace cgdemo
         {
             lblCoord.Left = margin;
             lblCoord.Top = ClientSize.Height - lblCoord.Height - margin;
-
-            ckbPolygon.Top = margin;
-            ckbPolygon.Left = ClientSize.Width - ckbPolygon.Width - margin;
-            ckbAnimation.Top = ckbPolygon.Bottom + margin;
+            
+            ckbAnimation.Top = margin;
             ckbAnimation.Left = ClientSize.Width - ckbAnimation.Width - margin;
             lblAnimation.Left = ClientSize.Width - lblAnimation.Width - margin;
             lblAnimation.Top = ckbAnimation.Bottom + margin;
@@ -229,18 +227,7 @@ namespace cgdemo
             List<PointF> intPoints = new List<PointF>();
             foreach (var tuple in intPointTuples)
                 intPoints.Add(tuple.Item1);
-
-            if (ckbPolygon.Checked)
-            {
-                intPoints = new List<PointF>();
-                foreach (var tuple in intPointTuples)
-                    if (Math.Abs((int)tuple.Item2 - (int)tuple.Item3) == 1)
-                        continue;
-                    else if (Math.Abs((int)tuple.Item2 - (int)tuple.Item3)
-                            != segmentEndPoints.Count / 2 - 1)
-                        intPoints.Add(tuple.Item1);
-            }
-
+            
             animation.intPoints = intPoints.ToArray();
             drawIntPoint(animation.intPoints);
         }
