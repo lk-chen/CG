@@ -11,7 +11,7 @@
 #include <string>
 
 namespace clk {
-	/// <summary> Intersection <summary>
+	/// <summary> Intersection </summary>
 	class DLLEXP Intersection {
 	public:
 		/// <summary> Detect potential intersection of two line segments </summary>
