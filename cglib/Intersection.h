@@ -86,11 +86,11 @@ namespace clk {
 			template<class _Pr>
 			static std::vector<std::tuple<Point, size_t, size_t>> compute(
 				const std::vector<Segment> &segs, _Pr callback) {
-				vector<tuple<Point, size_t, size_t>> intPoints;
+				std::vector<std::tuple<Point, size_t, size_t>> intPoints;
 				if (segs.size() == 0) return intPoints;
 				Point sweepPoint;
 				bool reverse = false;
-				set<SegmentPosition> SLS;
+				std::set<SegmentPosition> SLS;
 				EventQueue EQ(sweepPoint);
 				Point intPoint;
 
@@ -104,7 +104,7 @@ namespace clk {
 				{
 					const auto &event = EQ.top();
 					decltype(SLS.begin()) it1, it2;
-					vector<const Segment*> upper, lower, contain;
+					std::vector<const Segment*> upper, lower, contain;
 					sweepPoint = event.first;
 					auto sl = *event.second.begin();
 					auto sr = *event.second.rbegin();
@@ -165,7 +165,7 @@ namespace clk {
 
 							segmentIntersect(**it1, **it2, intPoint);
 							if (intPoint == event.first)
-								intPoints.push_back(make_tuple(event.first,
+								intPoints.push_back(std::make_tuple(event.first,
 									*it1 - &segs[0], *it2 - &segs[0]));
 						}
 

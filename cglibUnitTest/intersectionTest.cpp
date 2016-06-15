@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include <CppUnitTest.h>
-#include "Intersection.h"
+#include "intersection.h"
 #include "pointTest.cpp"
 #include <vector>
 #include <random>

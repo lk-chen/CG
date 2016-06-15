@@ -1,4 +1,4 @@
-#include "Triangulation.h"
+#include "triangulation.h"
 #include "CH.h"
 #include <stdexcept>
 

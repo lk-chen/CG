@@ -21,12 +21,18 @@
     <ClInclude Include="wIntersection.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="wTriangulation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="wCH.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="wIntersection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wTriangulation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

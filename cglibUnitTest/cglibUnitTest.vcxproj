@@ -175,6 +175,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="segmentTest.cpp" />
+    <ClCompile Include="triangulationTest.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\cglib\cglib.vcxproj">

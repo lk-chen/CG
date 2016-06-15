@@ -54,6 +54,13 @@ namespace cgdemo
                 (new Intersection()).Show();
             };
             btns[1].Visible = true;
+
+            btns[2].Text = "Triangulation";
+            btns[2].Click += delegate (object _sender, EventArgs _e)
+            {
+                (new Triangulation()).Show();
+            };
+            btns[2].Visible = true;
         }
     }
 }
