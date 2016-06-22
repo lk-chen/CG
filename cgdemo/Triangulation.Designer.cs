@@ -28,13 +28,26 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.btnRand = new System.Windows.Forms.Button();
             this.SuspendLayout();
+            // 
+            // btnRand
+            // 
+            this.btnRand.Location = new System.Drawing.Point(81, 61);
+            this.btnRand.Name = "btnRand";
+            this.btnRand.Size = new System.Drawing.Size(111, 69);
+            this.btnRand.TabIndex = 0;
+            this.btnRand.Text = "Random";
+            this.btnRand.UseVisualStyleBackColor = true;
+            this.btnRand.Click += new System.EventHandler(this.btnRand_Click);
             // 
             // Triangulation
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(12F, 25F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(770, 529);
+            this.ClientSize = new System.Drawing.Size(1174, 604);
+            this.Controls.Add(this.btnRand);
+            this.MinimumSize = new System.Drawing.Size(1200, 675);
             this.Name = "Triangulation";
             this.Text = "Triangulation";
             this.ResumeLayout(false);
@@ -42,5 +55,7 @@
         }
 
         #endregion
+
+        private System.Windows.Forms.Button btnRand;
     }
 }
