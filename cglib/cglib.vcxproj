@@ -139,16 +139,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="CH.cpp" />
-    <ClCompile Include="Intersection.cpp" />
+    <ClCompile Include="intersection.cpp" />
     <ClCompile Include="point.cpp" />
     <ClCompile Include="segment.cpp" />
-    <ClCompile Include="test.cpp" />
+    <ClCompile Include="triangulation.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CH.h" />
-    <ClInclude Include="Intersection.h" />
+    <ClInclude Include="intersection.h" />
     <ClInclude Include="point.h" />
     <ClInclude Include="segment.h" />
+    <ClInclude Include="triangulation.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

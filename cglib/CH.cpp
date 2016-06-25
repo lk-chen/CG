@@ -79,27 +79,7 @@ namespace clk {
 
 		return EP;
 	}
-
-	size_t CH::LTL(const std::vector<DistinctPoint>& points)
-	{
-		struct {
-			bool operator()(const DistinctPoint &p, const DistinctPoint &q) {
-				if (p.y < q.y) return true;
-				else if (p.y > q.y) return false;
-				else {
-					if (p.x < q.x) return true;
-					else if (p.x > q.x) return false;
-					else {
-						throw "Repeated points";
-					}
-				}
-			}
-		} lowestThenLeftmostComp;
-
-		return std::min_element(points.begin(), points.end(), lowestThenLeftmostComp)
-			- points.begin();
-	}
-	
+		
 	std::vector<size_t> CH::incremental(const std::vector<Point>& points)
 	{
 		if (points.size() == 0) return std::vector<size_t>();
@@ -139,7 +119,7 @@ namespace clk {
 		if (points.size() == 0) return std::vector<size_t>();
 
 		auto dPoints = groupPoints(points);
-		auto ltl = LTL(dPoints);
+		auto ltl = lowestThenLeftmost(dPoints);
 		std::vector<size_t> polygon{ ltl };
 
 		struct {
@@ -171,7 +151,7 @@ namespace clk {
 		if (points.size() == 0) return std::vector<size_t>();
 
 		auto dPoints = groupPoints(points);
-		auto ltl = LTL(dPoints);
+		auto ltl = lowestThenLeftmost(dPoints);
 
 		struct {
 			bool operator()(const DistinctPoint& o,

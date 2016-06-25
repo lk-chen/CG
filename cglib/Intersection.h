@@ -11,7 +11,7 @@
 #include <string>
 
 namespace clk {
-	/// <summary> Intersection <summary>
+	/// <summary> Intersection </summary>
 	class DLLEXP Intersection {
 	public:
 		/// <summary> Detect potential intersection of two line segments </summary>
@@ -33,8 +33,6 @@ namespace clk {
 		/// overlap with endpoints of seg </returns>
 		static bool pointOnSegment(const Point &p, const Segment &seg);
 
-		static void nullCallback(long double y, const std::vector<size_t> &eventIdx, const std::vector<size_t>& SLSIdx) { }
-
 		class BOSweepClass {
 		private:
 			class EventQueue {
@@ -49,7 +47,7 @@ namespace clk {
 					}
 				};
 				struct HigherThenLeft {
-					bool operator()(const Point& a, const Point& b) {
+					bool operator()(const Point& a, const Point& b) const {
 						if (a.y != b.y) return a.y < b.y;
 						else return a.x > b.x;
 					}
@@ -110,12 +108,10 @@ namespace clk {
 					auto sr = *event.second.rbegin();
 					reverse = false;
 
-					for (auto hline = event.second.begin(); hline != event.second.end(); hline++) {
-						if (!(*hline)->isHorizontal())
-							continue;
-						else {
+					for (auto hline = event.second.begin(); hline != event.second.end(); ++hline) {
+						if ((*hline)->isHorizontal()) {
 							for (auto it = SLS.upper_bound(SegmentPosition(**hline, sweepPoint, reverse));
-								it != SLS.end(); it++) {
+								it != SLS.end(); ++it) {
 								if (segmentIntersect(**hline, it->seg, intPoint))
 									EQ.push(intPoint, *hline, &it->seg);
 								else break;
@@ -123,25 +119,24 @@ namespace clk {
 						}
 					}
 
-					for (auto seg : event.second) {
-						SLS.erase(SegmentPosition(*seg, sweepPoint, reverse));
-						if (seg->first == sweepPoint) lower.push_back(seg);
-						else if (seg->second == sweepPoint) upper.push_back(seg);
-						else contain.push_back(seg);
+					for (auto pseg : event.second) {
+						SLS.erase(SegmentPosition(*pseg, sweepPoint, reverse));
+						if (pseg->first == sweepPoint) lower.push_back(pseg);
+						else if (pseg->second == sweepPoint) upper.push_back(pseg);
+						else contain.push_back(pseg);
 					}
 
 					reverse = true;
-					for (auto seg : lower) SLS.insert(SegmentPosition(*seg, sweepPoint, reverse));
-					for (auto seg : contain) SLS.insert(SegmentPosition(*seg, sweepPoint, reverse));
+					for (auto pseg : lower) SLS.insert(SegmentPosition(*pseg, sweepPoint, reverse));
+					for (auto pseg : contain) SLS.insert(SegmentPosition(*pseg, sweepPoint, reverse));
 
 					it2 = SLS.lower_bound(SegmentPosition(*sr, sweepPoint, reverse));
-
 					if (it2 != SLS.begin() && it2 != SLS.end()) {
-						it1 = it2; it1--;
-						for (auto r = it2; r != SLS.end(); r++) {
-							if (r->seg.compareSlope(it2->seg) || it2->seg.compareSlope(r->seg))break;
-							for (auto l = it1; l != SLS.end(); l--) {
-								if (l->seg.compareSlope(it1->seg) || it1->seg.compareSlope(l->seg))break;
+						it1 = it2; --it1;
+						for (auto r = it2; r != SLS.end(); ++r) {
+							if (r->seg.compareSlope(it2->seg) || it2->seg.compareSlope(r->seg)) break;
+							for (auto l = it1; l != SLS.end(); --l) {
+								if (l->seg.compareSlope(it1->seg) || it1->seg.compareSlope(l->seg)) break;
 								if (segmentIntersect(l->seg, r->seg, intPoint))
 									EQ.push(intPoint, &l->seg, &r->seg);
 							}
@@ -149,33 +144,35 @@ namespace clk {
 					}
 
 					it2 = SLS.upper_bound(SegmentPosition(*sl, sweepPoint, reverse));
-
 					if (it2 != SLS.begin() && it2 != SLS.end()) {
-						it1 = it2; it1--;
-						for (auto r = it2; r != SLS.end(); r++) {
-							if (r->seg.compareSlope(it2->seg) || it2->seg.compareSlope(r->seg))break;
-							for (auto l = it1; l != SLS.end(); l--) {
-								if (l->seg.compareSlope(it1->seg) || it1->seg.compareSlope(l->seg))break;
+						it1 = it2; --it1;
+						for (auto r = it2; r != SLS.end(); ++r) {
+							if (r->seg.compareSlope(it2->seg) || it2->seg.compareSlope(r->seg)) break;
+							for (auto l = it1; l != SLS.end(); --l) {
+								if (l->seg.compareSlope(it1->seg) || it1->seg.compareSlope(l->seg)) break;
 								if (segmentIntersect(l->seg, r->seg, intPoint))
 									EQ.push(intPoint, &l->seg, &r->seg);
 							}
 						}
 					}
 
-					for (auto it1 = event.second.begin(); it1 != event.second.end(); it1++)
-						for (auto it2 = it1; it2 != event.second.end(); it2++)
-							if (it2 == it1) continue;
-							else {
-								segmentIntersect(**it1, **it2, intPoint);
-								if (intPoint == event.first)
-									intPoints.push_back(std::make_tuple(event.first,
-										*it1 - &segs[0], *it2 - &segs[0]));
-							}
+					for (auto it1 = event.second.begin(); it1 != event.second.end(); ++it1)
+						for (auto it2 = it1; ; ) {
+							++it2;
+							if (it2 == event.second.end()) break;
 
-					std::vector<size_t> SLSIdx, eventIdx;
-					for (auto it : SLS) SLSIdx.push_back(&it.seg - &segs[0]);
-					for (auto it : event.second) eventIdx.push_back(it - &segs[0]);
-					callback(sweepPoint.y, eventIdx, SLSIdx);
+							segmentIntersect(**it1, **it2, intPoint);
+							if (intPoint == event.first)
+								intPoints.push_back(std::make_tuple(event.first,
+									*it1 - &segs[0], *it2 - &segs[0]));
+						}
+
+					if (callback) {
+						std::vector<size_t> SLSIdx, eventIdx;
+						for (auto it : SLS) SLSIdx.push_back(&it.seg - &segs[0]);
+						for (auto it : event.second) eventIdx.push_back(it - &segs[0]);
+						callback(sweepPoint.y, eventIdx, SLSIdx);
+					}
 
 					EQ.pop();
 				}
@@ -198,6 +195,7 @@ namespace clk {
 		/// <param name="segs"> Input segments to be detected </param>
 		static std::vector<std::tuple<Point, size_t, size_t>> BOSweep(
 			const std::vector<Segment> &segs) {
+			void(*nullCallback)(long double, const std::vector<size_t> &, const std::vector<size_t>&) = nullptr;
 			return Intersection::BOSweepClass::compute(segs, nullCallback);
 		}
 

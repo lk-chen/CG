@@ -35,5 +35,8 @@
     <ClCompile Include="pointTest.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="triangulationTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

@@ -80,7 +80,7 @@
             // ckbAnimation
             // 
             this.ckbAnimation.AutoSize = true;
-            this.ckbAnimation.Location = new System.Drawing.Point(1166, 40);
+            this.ckbAnimation.Location = new System.Drawing.Point(1159, 78);
             this.ckbAnimation.Name = "ckbAnimation";
             this.ckbAnimation.Size = new System.Drawing.Size(137, 29);
             this.ckbAnimation.TabIndex = 4;

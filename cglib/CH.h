@@ -1,5 +1,7 @@
 #pragma once
 #include <vector>
+#include <type_traits>
+#include <algorithm>
 #include "point.h"
 
 namespace clk {
@@ -28,11 +30,29 @@ namespace clk {
 		/// <param name="polygon"> Extreme point index under distinct point notation </param>
 		/// <returns> Extreme points index </returns>
 		static std::vector<size_t> deGroupPoints(const std::vector<DistinctPoint>& dPoints, const std::vector<size_t>& polygon);
-
-		/// <summary>
-		/// Find the index of the lowest then leftmost point </summary>
-		static size_t LTL(const std::vector<DistinctPoint> &points);
 	public:
+		/// <summary> Find the index of the lowest then leftmost point </summary>
+		template<
+			typename T,
+			typename = std::enable_if<std::is_base_of<Point, T>::value>
+		>
+		static size_t lowestThenLeftmost(const std::vector<T> &points) {
+			auto lowestThenLeftmostComp = [](const T &p, const T &q) {
+				if (p.y < q.y) return true;
+				else if (p.y > q.y) return false;
+				else {
+					if (p.x < q.x) return true;
+					else if (p.x > q.x) return false;
+					else {
+						throw "Repeated points";
+					}
+				}
+			};
+
+			return std::min_element(points.begin(), points.end(), lowestThenLeftmostComp)
+				- points.begin();
+		};
+
 		/// <summary>
 		/// Incremental method of constructing convex hull </summary>
 		static std::vector<size_t> incremental(const std::vector<Point>& points);

@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include <CppUnitTest.h>
-#include "Intersection.h"
+#include "intersection.h"
 #include "pointTest.cpp"
 #include <vector>
 #include <random>
@@ -135,6 +135,30 @@ namespace cglibUnitTest
 			segs[sz] = segs[sz - 1];
 			Assert::AreEqual(Intersection::BruteForce(segs).size()
 				, Intersection::BOSweep(segs).size());
+		}
+
+		TEST_METHOD(BOSweepRandomPerformanceTest)
+		{
+			int sz = 1000;
+			vector<Segment> segs(sz + 1);
+			for (int i = 0; i < sz; i++) {
+				segs[i] = Segment(Point(rand(), rand())
+					, Point(rand(), rand()));
+			}
+			segs[sz] = segs[sz - 1];
+			Assert::IsTrue(Intersection::BOSweep(segs).size() >= 0);
+		}
+
+		TEST_METHOD(BruteForceRandomPerformanceTest)
+		{
+			int sz = 1000;
+			vector<Segment> segs(sz + 1);
+			for (int i = 0; i < sz; i++) {
+				segs[i] = Segment(Point(rand(), rand())
+					, Point(rand(), rand()));
+			}
+			segs[sz] = segs[sz - 1];
+			Assert::IsTrue(Intersection::BruteForce(segs).size() >= 0);
 		}
 	};
 }

@@ -84,7 +84,7 @@ namespace clk {
 	void Intersection::BOSweepClass::EventQueue::push(const Point & xp, const Segment * seg1, const Segment * seg2) {
 		if (pq.key_comp()(sweepPoint, xp)) return;
 		pq[xp].insert(seg1);
-		if (seg2 != nullptr) pq[xp].insert(seg2);
+		if (seg2) pq[xp].insert(seg2);
 	}
 
 	long double Intersection::BOSweepClass::SegmentPosition::_intX() const {
@@ -124,4 +124,5 @@ namespace clk {
 				return a.seg.compareSlope(b.seg);
 		}
 	}
+
 }

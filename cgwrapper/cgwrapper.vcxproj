@@ -138,10 +138,12 @@
   <ItemGroup>
     <ClInclude Include="wCH.h" />
     <ClInclude Include="wIntersection.h" />
+    <ClInclude Include="wTriangulation.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="wCH.cpp" />
     <ClCompile Include="wIntersection.cpp" />
+    <ClCompile Include="wTriangulation.cpp" />
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="{215d64d2-031c-33c7-96e3-61794cd1ee61}">
