@@ -33,8 +33,6 @@ namespace clk {
 		/// overlap with endpoints of seg </returns>
 		static bool pointOnSegment(const Point &p, const Segment &seg);
 
-		static void nullCallback(long double y, const std::vector<size_t> &eventIdx, const std::vector<size_t>& SLSIdx) { }
-
 		class BOSweepClass {
 		private:
 			class EventQueue {
@@ -169,19 +167,18 @@ namespace clk {
 									*it1 - &segs[0], *it2 - &segs[0]));
 						}
 
-					std::vector<size_t> SLSIdx, eventIdx;
-					for (auto it : SLS) SLSIdx.push_back(&it.seg - &segs[0]);
-					for (auto it : event.second) eventIdx.push_back(it - &segs[0]);
-					callback(sweepPoint.y, eventIdx, SLSIdx);
+					if (callback) {
+						std::vector<size_t> SLSIdx, eventIdx;
+						for (auto it : SLS) SLSIdx.push_back(&it.seg - &segs[0]);
+						for (auto it : event.second) eventIdx.push_back(it - &segs[0]);
+						callback(sweepPoint.y, eventIdx, SLSIdx);
+					}
 
 					EQ.pop();
 				}
 
 				return intPoints;
 			}
-
-			static std::vector<std::tuple<Point, size_t, size_t>> compute(
-				const std::vector<Segment> &segs);
 		};
 	public:
 		/// <summary> Bentley-Ottmann Sweep algorithm </summary>
@@ -191,7 +188,6 @@ namespace clk {
 		template<class _Pr>
 		static std::vector<std::tuple<Point, size_t, size_t>> BOSweep(
 			const std::vector<Segment> &segs, _Pr callback) {
-			//return Intersection::BOSweepClass::compute(segs, callback);
 			return Intersection::BOSweepClass::compute(segs, callback);
 		}
 
@@ -199,7 +195,8 @@ namespace clk {
 		/// <param name="segs"> Input segments to be detected </param>
 		static std::vector<std::tuple<Point, size_t, size_t>> BOSweep(
 			const std::vector<Segment> &segs) {
-			return Intersection::BOSweepClass::compute(segs);
+			void(*nullCallback)(long double, const std::vector<size_t> &, const std::vector<size_t>&) = nullptr;
+			return Intersection::BOSweepClass::compute(segs, nullCallback);
 		}
 
 		/// <summary> Brute-Force method </summary>
