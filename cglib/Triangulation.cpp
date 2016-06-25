@@ -32,28 +32,32 @@ vector<tuple<size_t, size_t>> clk::Triangulation::monotoneTriangulation(const ve
 				}
 				else {
 					if (curOnLeft) {
-						do {
+						while (stack.size() >= 2 &&
+							vertices[l].toRight(vertices[stack[stack.size() - 2]], vertices[stack.back()]) &&
+							!vertices[l].toLeft(vertices[stack[stack.size() - 2]], vertices[stack.back()])) {
 							stack.pop_back();
 							res.push_back(make_tuple(l, stack.back()));
-						} while (vertices.size() >= 2 &&
-							!vertices[l].toLeft(vertices[stack[stack.size() - 2]], vertices[stack.back()]));
+						}
 						stack.push_back(l);
 					}
 					else {
-						do
-						{
+						while (stack.size() >= 2 &&
+							vertices[r].toLeft(vertices[stack[stack.size() - 2]], vertices[stack.back()]) &&
+							!vertices[r].toRight(vertices[stack[stack.size() - 2]], vertices[stack.back()])) {
 							stack.pop_back();
 							res.push_back(make_tuple(r, stack.back()));
-						} while (vertices.size() >= 2 &&
-							!vertices[r].toRight(vertices[stack[stack.size() - 2]], vertices[stack.back()]));
+						}
+						stack.push_back(r);
 					}
 				}
 			}
 			else {
 				auto newBase = stack.back();
-				while (stack.size() > 1)
+				while (stack.size() > 1) {
 					res.push_back(make_tuple(stack.back(),
 						curOnLeft ? l : r));
+					stack.pop_back();
+				}
 				stack[0] = newBase;
 				stack.push_back(curOnLeft ? l : r);
 				baseOnLeft = curOnLeft;
@@ -65,6 +69,10 @@ vector<tuple<size_t, size_t>> clk::Triangulation::monotoneTriangulation(const ve
 		else
 			r = (r + 1) % sz;
 	}
+
+	stack.pop_back();
+	for (auto it = stack.begin() + 1; it != stack.end(); ++it)
+		res.push_back(make_tuple(l, *it));
 
 	return res;
 }
