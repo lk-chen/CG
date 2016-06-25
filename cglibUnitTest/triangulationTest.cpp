@@ -40,10 +40,6 @@ namespace cglibUnitTest
 			Assert::AreEqual((size_t)2, Triangulation::monotoneTriangulation(tmp).size());
 
 			reverse(tmp.begin(), tmp.end());
-			auto p1 = tmp[0];
-			auto p2 = tmp[1];
-			auto p3 = tmp[2];
-			auto p4 = tmp[3];
 			for (auto &p : tmp)
 				p = Point(-p.x, p.y);
 			Assert::AreEqual((size_t)2, Triangulation::monotoneTriangulation(tmp).size());
@@ -78,11 +74,41 @@ namespace cglibUnitTest
 		}
 
 		TEST_METHOD(MonotoneTriangulationCollinearTest) {
+			vector<Point> backbone;
+			backbone.push_back(Point());
+			backbone.push_back(Point(-0.5, 3));
+			backbone.push_back(Point(-1, 1.5));
+			backbone.push_back(Point(-1.5, 1));
+			backbone.push_back(Point(-3, 0.5));
 
+			vector<Point> vertices;
+			vertices.push_back(backbone[0]);
+			for (auto i = 1; i < backbone.size(); ++i) {
+				vertices.push_back(Point(
+					(backbone[i].x + vertices.back().x) / 2,
+					(backbone[i].y + vertices.back().y) / 2
+				));
+				vertices.push_back(backbone[i]);
+			}
+			Assert::AreEqual(vertices.size() - 3, Triangulation::monotoneTriangulation(vertices).size());
+
+			auto tmp(vertices);
+			for (auto &p : tmp)
+				p = Point(-p.x, -p.y);
+			Assert::AreEqual(vertices.size() - 3, Triangulation::monotoneTriangulation(tmp).size());
+
+			reverse(tmp.begin(), tmp.end());
+			for (auto &p : tmp)
+				p = Point(-p.x, p.y);
+			Assert::AreEqual(vertices.size() - 3, Triangulation::monotoneTriangulation(tmp).size());
+
+			for (auto &p : tmp)
+				p = Point(-p.x, -p.y);
+			Assert::AreEqual(vertices.size() - 3, Triangulation::monotoneTriangulation(tmp).size());
 		}
 
 		TEST_METHOD(MonotoneTriangulationRandomPerformanceTest) {
-			auto sz = 1000;
+			auto sz = 3000;
 			vector<Point> vertices;
 			float y = 0;
 			vertices.push_back(Point(0, y));
